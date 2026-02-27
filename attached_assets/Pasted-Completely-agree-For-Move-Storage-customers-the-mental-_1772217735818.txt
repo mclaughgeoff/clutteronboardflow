@@ -1,0 +1,102 @@
+Completely agree. For Move + Storage customers the mental model is totally different — they're thinking about a total event cost, not a monthly storage rate. Breaking it out adds cognitive load where there should be clarity.
+
+Here's the fix:
+
+---
+
+**Replit Update Prompt: Move + Storage Pricing — Total Cost Display**
+
+---
+
+> Apply the following targeted change to the Move + Storage path (Branch B1) only. Do not modify the storage-only pricing screen or any other screens.
+>
+> ---
+>
+> ## CHANGE — Moving Outcome Screen: Replace Line-Item Breakdown with Total Cost Display
+>
+> In `ScreenMovingOutcome.tsx` (Outcome A — Clutter route), replace the current pricing breakdown section entirely.
+>
+> **Remove:**
+> - Monthly storage rate display
+> - Separate one-time cost section
+> - Progressive discount schedule
+> - Labor fee line items
+> - "Monthly Storage" and "One-Time Costs" section headers
+>
+> **Replace with a single Total Cost card:**
+>
+> ```
+> ┌─────────────────────────────────────────────────┐
+> │  Your estimated total                            │
+> │                                                  │
+> │  $[totalCost]                                    │
+> │  (DM Serif Display, 48px, charcoal)              │
+> │                                                  │
+> │  Covers everything from pickup to final          │
+> │  delivery — [X months] of secure storage,        │
+> │  all included.                                   │
+> └─────────────────────────────────────────────────┘
+> ```
+>
+> **Calculation logic:**
+> ```ts
+> // Duration in months (from pickup → delivery dates)
+> const months = Math.ceil(durationDays / 30)
+>
+> // Select rate based on duration
+> const plan = months >= 8 ? 'longhaul'
+>            : months >= 4 ? 'committed'
+>            : 'flexible'
+>
+> const monthlyRate = getBaseRate(sizeIdx, plan)
+> const labor = getLaborCost(tier, plan)
+>
+> const totalCost = (monthlyRate * months)
+>                 + labor.pickup
+>                 + labor.delivery
+>
+> // If duration unknown ("Not sure yet"):
+> // Show monthly rate only, no total
+> ```
+>
+> **What's included section** (below the total card — keep this, it's valuable):
+> Keep the existing checklist of included services built from their selections. This justifies the total without requiring the customer to do any math themselves.
+>
+> **If duration is unknown** ("Not sure yet" selected on date screen):
+> ```
+> $[monthlyRate]/mo
+> + pickup and delivery included
+>
+> "Set your delivery date anytime from your account
+>  portal — we'll calculate your full total then."
+> ```
+>
+> **Due today block** remains unchanged:
+> ```
+> Due today: $0
+> Charges begin after your first pickup
+> ```
+>
+> **Savings note** (below due today, if committed or longhaul):
+> Single line, grey text, no pill:
+> "Pickup and delivery included — no separate labor charges."
+>
+> ---
+>
+> ## What This Changes
+>
+> | Before | After |
+> |---|---|
+> | Monthly storage rate + one-time costs shown separately | Single total cost for the full move + storage event |
+> | Progressive discount schedule shown | Hidden — irrelevant for a defined date range |
+> | Labor fees called out as line items | Folded into total — customer sees one number |
+> | Multiple sections to parse | One number, one clear "what's included" list |
+>
+> ---
+>
+> ## What Stays the Same
+>
+> - Storage-only path (Branch A) — still shows monthly rate + one-time costs + progressive discounts as specified in the previous prompt. That breakdown is appropriate for open-ended storage.
+> - All other moving flow screens unchanged
+> - The "what's included" services checklist on the outcome screen — keep exactly as specified previously
+> - Flex outcome screen (Branch B — under 30 days) — unchanged, already shows a flat quote

@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { CheckCircle } from "lucide-react";
-import { getMovingQuote, pricing } from "@/lib/pricing";
+import { getMovingQuote, getBaseRate, getLaborCost, pricing } from "@/lib/pricing";
+import type { Plan } from "@/lib/state";
 import { format } from "date-fns";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
@@ -28,17 +29,49 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
     ? Math.floor((state.deliveryDate.getTime() - state.pickupDate.getTime()) / 86400000)
     : null;
 
-  const quote = useMemo(
-    () => getMovingQuote(state.sizeIdx, state.tier, durationDays, route),
-    [state.sizeIdx, state.tier, durationDays, route]
+  const months = durationDays ? Math.ceil(durationDays / 30) : null;
+
+  const flexQuote = useMemo(
+    () => getMovingQuote(state.sizeIdx, state.tier, durationDays, 'flex'),
+    [state.sizeIdx, state.tier, durationDays]
   );
 
-  const months = durationDays ? Math.ceil(durationDays / 30) : null;
+  const clutterPlan: Plan = !months || months >= 8 ? 'longhaul'
+    : months >= 4 ? 'committed'
+    : 'flexible';
+
+  const monthlyRate = getBaseRate(state.sizeIdx, clutterPlan);
+  const labor = getLaborCost(state.tier, clutterPlan);
+  const totalCost = months
+    ? (monthlyRate * months) + labor.pickup + labor.delivery
+    : null;
+
+  const durationKnown = months !== null;
+  const isCommittedOrLonghaul = clutterPlan === 'committed' || clutterPlan === 'longhaul';
 
   function handleContinue() {
     setState({ movingRoute: route });
     goTo('moving-lead');
   }
+
+  const includedItems = [
+    { text: 'Secure, climate-controlled storage', sub: 'Your items stored in a monitored Clutter facility', color: 'text-teal' },
+    { text: 'Digital inventory', sub: 'Every item photographed, catalogued, and accessible from your phone', color: 'text-teal' },
+    { text: 'On-demand access', sub: 'Request any item back between pickup and final delivery', color: 'text-teal' },
+    { text: 'Initial pickup', sub: 'Included', color: 'text-teal' },
+    { text: 'Final delivery to new address', sub: 'Included', color: 'text-teal' },
+    ...(state.tier === 'whiteglove' ? [
+      { text: 'Professional movers', sub: 'Full wrapping, padding, and loading by our trained team', color: 'text-teal' },
+      { text: 'All materials included', sub: 'Blankets, padding, and equipment provided', color: 'text-teal' },
+    ] : []),
+    ...(state.tier === 'prepacked' ? [
+      { text: 'Professional loading', sub: 'Our team handles loading and transport', color: 'text-teal' },
+    ] : []),
+    ...(state.tier === 'youload' ? [
+      { text: 'Flex trailer drop-off', sub: 'GPS-tracked trailer delivered to your door', color: 'text-flex' },
+      { text: 'Flex pickup + delivery', sub: 'Flex collects and delivers to Clutter facility', color: 'text-flex' },
+    ] : []),
+  ];
 
   if (route === 'flex') {
     return (
@@ -119,12 +152,12 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-grey">Move quote (volume + service)</span>
-                  <span className="text-charcoal font-medium">${quote.estimatedTotal}</span>
+                  <span className="text-charcoal font-medium">${flexQuote.estimatedTotal}</span>
                 </div>
                 <div className="border-t border-grey-light my-2" />
                 <div className="flex justify-between font-bold text-charcoal">
                   <span>Estimated total</span>
-                  <span>${quote.estimatedTotal}</span>
+                  <span>${flexQuote.estimatedTotal}</span>
                 </div>
               </div>
               <p className="text-xs text-grey mt-2 italic">A Flex specialist will confirm your exact quote within 24 hours.</p>
@@ -157,13 +190,6 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
     );
   }
 
-  const flexMonthlyRate = getMovingQuote(state.sizeIdx, state.tier, durationDays, 'clutter');
-  const savingsVsFlex = state.plan !== 'flexible'
-    ? getMovingQuote(state.sizeIdx, state.tier, durationDays, 'clutter').monthlyRate
-    : 0;
-
-  const flexibleRate = getMovingQuote(state.sizeIdx, state.tier, null, 'clutter');
-
   return (
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-6 overflow-y-auto">
       <div className="flex-1">
@@ -176,62 +202,36 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
 
         <div className="bg-white rounded-2xl shadow-md border-l-4 border-teal overflow-hidden" data-testid="card-quote-clutter">
           <div className="p-5">
-            <p className="text-xs font-semibold text-grey uppercase tracking-wider mb-3">Your Move + Storage Plan</p>
+            <p className="text-xs font-semibold text-grey uppercase tracking-wider mb-4">Your estimated total</p>
 
-            <div className="space-y-2 text-sm">
-              {state.pickupDate && (
-                <div className="flex justify-between">
-                  <span className="text-grey">Pickup date</span>
-                  <span className="text-charcoal font-medium">{format(state.pickupDate, 'MMM d, yyyy')}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-grey">Delivery date</span>
-                <span className="text-charcoal font-medium">
-                  {state.deliveryDate
-                    ? format(state.deliveryDate, 'MMM d, yyyy')
-                    : 'To be confirmed — set anytime in your portal'
-                  }
-                </span>
+            {durationKnown && totalCost !== null ? (
+              <div className="mb-4">
+                <p className="font-serif text-[48px] leading-none text-charcoal" data-testid="text-total-cost">
+                  ${totalCost.toLocaleString()}
+                </p>
+                <p className="text-sm text-grey mt-2 leading-relaxed">
+                  Covers everything from pickup to final delivery — {months} month{months! > 1 ? 's' : ''} of secure storage, all included.
+                </p>
               </div>
-              {months && (
-                <div className="flex justify-between">
-                  <span className="text-grey">Estimated storage</span>
-                  <span className="text-charcoal font-medium">{months} month{months > 1 ? 's' : ''}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-grey">Volume</span>
-                <span className="text-charcoal font-medium">{state.selectedBedrooms || pricing[state.sizeIdx]?.friendly}</span>
+            ) : (
+              <div className="mb-4">
+                <p className="font-serif text-[40px] leading-none text-charcoal" data-testid="text-monthly-rate">
+                  ${monthlyRate}<span className="text-lg text-grey font-sans">/mo</span>
+                </p>
+                <p className="text-sm text-grey mt-2 leading-relaxed">
+                  + pickup and delivery included
+                </p>
+                <p className="text-xs text-grey mt-2 italic leading-relaxed">
+                  Set your delivery date anytime from your account portal — we'll calculate your full total then.
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-grey">Service</span>
-                <span className="text-charcoal font-medium">{tierLabel(state.tier)}</span>
-              </div>
-            </div>
+            )}
 
             <div className="border-t border-grey-light my-4" />
 
             <p className="text-xs font-semibold text-grey uppercase tracking-wider mb-3">What's included</p>
             <div className="space-y-2.5">
-              {[
-                { text: 'Secure, climate-controlled storage', sub: 'Your items stored in a monitored Clutter facility', color: 'text-teal' },
-                { text: 'Digital inventory', sub: 'Every item photographed, catalogued, and accessible from your phone', color: 'text-teal' },
-                { text: 'On-demand access', sub: 'Request any item back between pickup and final delivery', color: 'text-teal' },
-                { text: 'Initial pickup', sub: quote.pickupCost === 0 ? 'Included' : `$${quote.pickupCost}`, color: 'text-teal' },
-                { text: 'Final delivery to new address', sub: quote.deliveryCost === 0 ? 'Included' : `$${quote.deliveryCost}`, color: 'text-teal' },
-                ...(state.tier === 'whiteglove' ? [
-                  { text: 'Professional movers', sub: 'Full wrapping, padding, and loading by our trained team', color: 'text-teal' },
-                  { text: 'All materials included', sub: 'Blankets, padding, and equipment provided', color: 'text-teal' },
-                ] : []),
-                ...(state.tier === 'prepacked' ? [
-                  { text: 'Professional loading', sub: 'Our team handles loading and transport', color: 'text-teal' },
-                ] : []),
-                ...(state.tier === 'youload' ? [
-                  { text: 'Flex trailer drop-off', sub: 'GPS-tracked trailer delivered to your door', color: 'text-flex' },
-                  { text: 'Flex pickup + delivery', sub: 'Flex collects and delivers to Clutter facility', color: 'text-flex' },
-                ] : []),
-              ].map((item, i) => (
+              {includedItems.map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <CheckCircle className={`w-4 h-4 ${item.color} flex-shrink-0 mt-0.5`} />
                   <div>
@@ -240,38 +240,6 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
                   </div>
                 </div>
               ))}
-            </div>
-
-            <div className="border-t border-grey-light my-4" />
-
-            <div className="space-y-2 text-sm">
-              {months && (
-                <div className="flex justify-between">
-                  <span className="text-grey">Storage ({months} mo × ${quote.monthlyRate}/mo)</span>
-                  <span className="text-charcoal font-medium">${quote.monthlyRate * months}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-grey">Initial pickup</span>
-                <span className="text-charcoal font-medium">{quote.pickupCost === 0 ? 'Included' : `$${quote.pickupCost}`}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-grey">Final delivery</span>
-                <span className="text-charcoal font-medium">{quote.deliveryCost === 0 ? 'Included' : `$${quote.deliveryCost}`}</span>
-              </div>
-              <div className="border-t border-grey-light my-2" />
-              {quote.estimatedTotal ? (
-                <div className="flex justify-between font-bold text-charcoal">
-                  <span>Estimated total</span>
-                  <span>${quote.estimatedTotal}</span>
-                </div>
-              ) : (
-                <p className="text-xs text-grey italic">We'll calculate your full total once you confirm your delivery date.</p>
-              )}
-              <div className="flex justify-between text-charcoal">
-                <span className="text-grey">Monthly rate</span>
-                <span className="font-bold">${quote.monthlyRate}/mo</span>
-              </div>
             </div>
           </div>
         </div>
@@ -282,9 +250,9 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
           <p className="text-xs text-white/70">Charges begin after your first pickup</p>
         </div>
 
-        {quote.planLabel !== 'Flexible' && flexibleRate.monthlyRate > quote.monthlyRate && (
-          <p className="text-sm text-teal text-center mt-3 font-medium" data-testid="text-savings">
-            You're saving ${flexibleRate.monthlyRate - quote.monthlyRate}/mo vs. our flexible plan.
+        {isCommittedOrLonghaul && (
+          <p className="text-xs text-grey text-center mt-3" data-testid="text-savings">
+            Pickup and delivery included — no separate labor charges.
           </p>
         )}
       </div>
