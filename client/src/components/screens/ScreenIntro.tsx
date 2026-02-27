@@ -191,7 +191,7 @@ function ClutterWayCard({ phase }: { phase: number }) {
         <AnimatePresence>
           {phase >= 4 && (
             <motion.div initial={{ opacity: 0, height: 0, scale: 0.9 }} animate={{ opacity: 1, height: "auto", scale: 1 }} className="bg-white rounded-2xl p-4 border border-white shadow-sm overflow-hidden">
-              <h4 className="text-[14px] font-bold text-teal mb-1">Powered by the App</h4>
+              <h4 className="text-[14px] font-bold text-teal mb-1">All your stuff, on your phone</h4>
               <p className="text-[12px] text-grey leading-snug font-medium mb-5">Need things back? Got more to store? Book pickups and deliveries anytime.</p>
               <div className="relative h-12 flex items-center justify-between px-6 bg-mist rounded-xl border border-grey-light/30">
                 <div className="relative z-10 flex flex-col items-center">
