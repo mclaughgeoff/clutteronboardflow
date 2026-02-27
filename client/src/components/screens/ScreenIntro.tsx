@@ -95,85 +95,74 @@ export default function ScreenIntro({ goTo }: Props) {
                   </div>
                 </div>
 
-                <div className="relative w-full h-24 mt-4 mb-6 px-4">
-                  <svg
-                    className="absolute inset-0 w-full h-full overflow-visible"
-                    preserveAspectRatio="none"
-                  >
-                    <motion.path
-                      d="M 15,40 Q 30,10 45,40 T 75,40 T 105,40 T 135,40 T 165,40 T 195,40 T 225,40 T 255,40 T 285,40 T 315,40"
-                      fill="transparent"
-                      stroke="#ffedd5"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="opacity-60"
-                    />
-                    <motion.path
-                      d="M 15,40 Q 30,10 45,40 T 75,40 T 105,40 T 135,40 T 165,40 T 195,40 T 225,40 T 255,40 T 285,40 T 315,40"
-                      fill="transparent"
-                      stroke="#f97316"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: phase >= 1 ? 1 : 0 }}
-                      transition={{ duration: 3, ease: "linear" }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex justify-between items-center px-2">
-                    {[
-                      "Buy boxes",
-                      "Pack items",
-                      "Rent van",
-                      "Load van",
-                      "Drive",
-                      "Unpack",
-                      "Lock unit",
-                    ].map((label, i) => {
-                      const totalNodes = 7;
-                      const staggerDelay = 3 / totalNodes;
-                      const isTop = i % 2 === 0;
+                <div className="relative w-full overflow-hidden mt-2 mb-2">
+                  <div className="relative h-20 mx-2">
+                    <svg
+                      className="absolute inset-0 w-full h-full"
+                      viewBox="0 0 300 80"
+                      preserveAspectRatio="none"
+                    >
+                      <motion.path
+                        d="M 10,40 Q 40,10 70,40 T 130,40 T 190,40 T 250,40 T 290,40"
+                        fill="transparent"
+                        stroke="#ffedd5"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        className="opacity-60"
+                      />
+                      <motion.path
+                        d="M 10,40 Q 40,10 70,40 T 130,40 T 190,40 T 250,40 T 290,40"
+                        fill="transparent"
+                        stroke="#f97316"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: phase >= 1 ? 1 : 0 }}
+                        transition={{ duration: 3, ease: "linear" }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex justify-between items-center px-1">
+                      {[
+                        "Pack it",
+                        "Rent van",
+                        "Haul it",
+                        "Unload",
+                        "Lock up",
+                      ].map((label, i) => {
+                        const totalNodes = 5;
+                        const staggerDelay = 3 / totalNodes;
+                        const isTop = i % 2 === 0;
 
-                      let textOffset = "-translate-x-2";
-                      if (i === 0) textOffset = "translate-x-2";
-                      if (i === totalNodes - 1) textOffset = "-translate-x-6";
-
-                      return (
-                        <div
-                          key={i}
-                          className="relative flex flex-col items-center"
-                          style={{ left: `${(i / (totalNodes - 1)) * 10}%` }}
-                        >
-                          <motion.div
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{
-                              scale: phase >= 1 ? 1 : 0,
-                              opacity: phase >= 1 ? 1 : 0,
-                            }}
-                            transition={{
-                              delay: phase >= 1 ? i * staggerDelay : 0,
-                              duration: 0.2,
-                            }}
-                            className="w-2.5 h-2.5 bg-orange-500 rounded-full border-[2.5px] border-white shadow-sm z-10 mt-[1.5px]"
-                          />
-                          <motion.div
-                            initial={{ opacity: 0, y: isTop ? 10 : -10 }}
-                            animate={{ opacity: phase >= 1 ? 1 : 0, y: 0 }}
-                            transition={{
-                              delay: phase >= 1 ? i * staggerDelay + 0.1 : 0,
-                            }}
-                            className={`absolute ${isTop ? "-top-10" : "-bottom-10"}`}
-                          >
-                            <span
-                              className={`whitespace-nowrap block text-[9px] font-bold text-grey origin-center -rotate-[35deg] ${textOffset}`}
+                        return (
+                          <div key={i} className="relative flex flex-col items-center">
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{
+                                scale: phase >= 1 ? 1 : 0,
+                                opacity: phase >= 1 ? 1 : 0,
+                              }}
+                              transition={{
+                                delay: phase >= 1 ? i * staggerDelay : 0,
+                                duration: 0.2,
+                              }}
+                              className="w-2.5 h-2.5 bg-orange-500 rounded-full border-[2px] border-white shadow-sm z-10"
+                            />
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: phase >= 1 ? 1 : 0 }}
+                              transition={{
+                                delay: phase >= 1 ? i * staggerDelay + 0.1 : 0,
+                              }}
+                              className={`absolute ${isTop ? "-top-5" : "-bottom-5"}`}
                             >
-                              {label}
-                            </span>
-                          </motion.div>
-                        </div>
-                      );
-                    })}
+                              <span className="whitespace-nowrap block text-[8px] font-bold text-grey/70">
+                                {label}
+                              </span>
+                            </motion.div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <AnimatePresence>
@@ -182,29 +171,27 @@ export default function ScreenIntro({ goTo }: Props) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="absolute -bottom-10 left-0 right-0 flex flex-col items-center"
+                        className="flex flex-col items-center mt-2"
                       >
-                        <div className="w-full relative h-4 flex items-center justify-center">
-                          <div className="w-[80%] border-t border-dashed border-orange-300 absolute" />
+                        <div className="w-[70%] relative h-5 flex items-center justify-center">
+                          <div className="w-full border-t border-dashed border-orange-300 absolute" />
                           <motion.div
                             animate={{
-                              x: ["-100px", "100px", "-100px", "100px", "-100px"],
-                              rotateY: [0, 0, 180, 180, 0, 0, 180, 180, 0],
+                              x: ["-80px", "80px", "-80px"],
+                              rotateY: [0, 0, 180, 180, 0],
                             }}
-                            transition={{ duration: 3.5, ease: "easeInOut" }}
-                            className="relative z-10 bg-white px-1 text-orange-400"
+                            transition={{ duration: 6, ease: "easeInOut", repeat: Infinity }}
+                            className="relative z-10 bg-white px-1.5 text-orange-400"
                           >
-                            <Truck size={16} />
+                            <Truck size={14} />
                           </motion.div>
                         </div>
-                        <span className="text-[9px] font-bold text-orange-400 mt-0.5 uppercase tracking-wider">
-                          TRIPS TO AND FROM STORAGE
+                        <span className="text-[8px] font-bold text-orange-400 mt-1 uppercase tracking-wider">
+                          Trips to and from storage
                         </span>
                       </motion.div>
                     )}
                   </AnimatePresence>
-
-                  <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none" />
                 </div>
               </div>
             </motion.div>
