@@ -111,8 +111,7 @@ export default function Screen5CSubjobs({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          How often will you need{' '}
-          <span className="text-teal"><em>something back?</em></span>
+          How often will you need to <span className="text-teal font-semibold">swap items</span> in and out of storage?
         </h1>
         <p className="text-grey text-[15px] mb-7" data-testid="text-subtitle">
           Manage your items from the app. Easily request individual item returns, or add new stuff to storage.
