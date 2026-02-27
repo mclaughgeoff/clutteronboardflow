@@ -158,7 +158,7 @@ function ClutterWayCard({ phase }: { phase: number }) {
 
       <div className="relative h-16 w-full mt-2">
         <div className="absolute top-1/2 left-6 right-6 h-1.5 rounded-full -translate-y-1/2 bg-[#d3eae5]" />
-        <motion.div className="absolute top-1/2 left-6 h-1.5 bg-teal rounded-full -translate-y-1/2 origin-left" initial={{ width: "0%" }} animate={{ width: phase >= 3 ? "calc(100% - 48px)" : "0%" }} transition={{ duration: 1.2, ease: "easeInOut" }} />
+        <motion.div className="absolute top-1/2 left-6 h-1.5 bg-teal rounded-full -translate-y-1/2 origin-left" initial={{ width: "0%" }} animate={{ width: phase >= 3 ? "calc(100% - 48px)" : "0%" }} transition={{ duration: 2, ease: "easeInOut" }} />
         <div className="absolute inset-0 flex justify-between items-center px-4">
           {[
             { icon: Box, label: "Book" },
@@ -166,19 +166,19 @@ function ClutterWayCard({ phase }: { phase: number }) {
             { icon: Warehouse, label: "Stored" },
           ].map((step, i) => {
             const isActive = phase >= 3;
-            const delay = isActive ? i * 0.4 : 0;
+            const delay = isActive ? i * 0.6 : 0;
             const Icon = step.icon;
             return (
               <div key={i} className="relative flex flex-col items-center">
                 <motion.div
                   initial={{ scale: 0.8, backgroundColor: "#f3f4f6", color: "#9ca3af" }}
                   animate={{ scale: isActive ? [1, 1.2, 1] : 0.8, backgroundColor: isActive ? "#1B7A6E" : "#f3f4f6", color: isActive ? "#ffffff" : "#9ca3af" }}
-                  transition={{ delay, duration: 0.4 }}
+                  transition={{ delay, duration: 0.6 }}
                   className={`w-[42px] h-[42px] rounded-full flex items-center justify-center relative z-10 shadow-sm border-[3.5px] ${isActive ? "border-teal-light" : "border-mist"}`}
                 >
                   <Icon size={18} strokeWidth={2.5} />
                 </motion.div>
-                <motion.span initial={{ opacity: 0, y: 5 }} animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 5 }} transition={{ delay: delay + 0.1, duration: 0.3 }} className="absolute -bottom-6 whitespace-nowrap text-[12px] font-bold text-teal">
+                <motion.span initial={{ opacity: 0, y: 5 }} animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 5 }} transition={{ delay: delay + 0.2, duration: 0.4 }} className="absolute -bottom-6 whitespace-nowrap text-[12px] font-bold text-teal">
                   {step.label}
                 </motion.span>
               </div>
@@ -195,14 +195,14 @@ function ClutterWayCard({ phase }: { phase: number }) {
               <p className="text-[12px] text-grey leading-snug font-medium mb-5">Need things back? Got more to store? Book pickups and deliveries anytime.</p>
               <div className="relative h-12 flex items-center justify-between px-6 bg-mist rounded-xl border border-grey-light/30">
                 <div className="relative z-10 flex flex-col items-center">
-                  <motion.div animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="bg-teal p-2 rounded-[10px] text-white shadow-md relative">
+                  <motion.div animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="bg-teal p-2 rounded-[10px] text-white shadow-md relative">
                     <Smartphone size={20} strokeWidth={2} />
-                    <motion.div animate={{ scale: [0, 1.5], opacity: [0, 0.6, 0] }} transition={{ repeat: Infinity, duration: 2.5, delay: 0.5 }} className="absolute inset-0 bg-white rounded-[10px]" />
+                    <motion.div animate={{ scale: [0, 1.5], opacity: [0, 0.6, 0] }} transition={{ repeat: Infinity, duration: 3.5, delay: 0.5 }} className="absolute inset-0 bg-white rounded-[10px]" />
                   </motion.div>
                 </div>
                 <div className="flex-1 relative mx-4 h-full flex items-center">
                   <div className="absolute inset-0 top-1/2 -translate-y-1/2 border-t-[2.5px] border-dashed border-teal/20" />
-                  <motion.div initial={{ x: "0%", opacity: 0, scale: 0.5 }} animate={{ x: "280%", opacity: [0, 1, 1, 0], scale: 1 }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 0.5 }} className="absolute left-0 bg-teal-light border-2 border-teal text-teal p-1.5 rounded-md shadow-sm z-20">
+                  <motion.div initial={{ x: "0%", opacity: 0, scale: 0.5 }} animate={{ x: "280%", opacity: [0, 1, 1, 0], scale: 1 }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.5 }} className="absolute left-0 bg-teal-light border-2 border-teal text-teal p-1.5 rounded-md shadow-sm z-20">
                     <Package size={14} strokeWidth={2.5} />
                   </motion.div>
                 </div>
