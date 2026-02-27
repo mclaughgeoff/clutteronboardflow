@@ -22,9 +22,9 @@ export default function ScreenIntro({ goTo }: Props) {
     const t1 = setTimeout(() => setPhase(1), 400);
     const t2 = setTimeout(() => setPhase(2), 3400);
     const t3 = setTimeout(() => setPhase(3), 6900);
-    const t4 = setTimeout(() => setPhase(4), 8100);
-    const t5 = setTimeout(() => setPhase(5), 9300);
-    const t6 = setTimeout(() => setPhase(6), 10100);
+    const t4 = setTimeout(() => setPhase(4), 9200);
+    const t5 = setTimeout(() => setPhase(5), 10800);
+    const t6 = setTimeout(() => setPhase(6), 12000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); };
   }, []);
 
@@ -158,7 +158,7 @@ function ClutterWayCard({ phase }: { phase: number }) {
 
       <div className="relative h-16 w-full mt-2">
         <div className="absolute top-1/2 left-6 right-6 h-1.5 rounded-full -translate-y-1/2 bg-[#d3eae5]" />
-        <motion.div className="absolute top-1/2 left-6 h-1.5 bg-teal rounded-full -translate-y-1/2 origin-left" initial={{ width: "0%" }} animate={{ width: phase >= 3 ? "calc(100% - 48px)" : "0%" }} transition={{ duration: 2, ease: "easeInOut" }} />
+        <motion.div className="absolute top-1/2 left-6 h-1.5 bg-teal rounded-full -translate-y-1/2 origin-left" initial={{ width: "0%" }} animate={{ width: phase >= 3 ? "calc(100% - 48px)" : "0%" }} transition={{ duration: 2.8, ease: [0.25, 0.1, 0.25, 1] }} />
         <div className="absolute inset-0 flex justify-between items-center px-4">
           {[
             { icon: Box, label: "Book" },
@@ -166,19 +166,19 @@ function ClutterWayCard({ phase }: { phase: number }) {
             { icon: Warehouse, label: "Stored" },
           ].map((step, i) => {
             const isActive = phase >= 3;
-            const delay = isActive ? i * 0.6 : 0;
+            const delay = isActive ? i * 0.8 : 0;
             const Icon = step.icon;
             return (
               <div key={i} className="relative flex flex-col items-center">
                 <motion.div
                   initial={{ scale: 0.8, backgroundColor: "#f3f4f6", color: "#9ca3af" }}
-                  animate={{ scale: isActive ? [1, 1.2, 1] : 0.8, backgroundColor: isActive ? "#1B7A6E" : "#f3f4f6", color: isActive ? "#ffffff" : "#9ca3af" }}
-                  transition={{ delay, duration: 0.6 }}
+                  animate={{ scale: isActive ? [1, 1.15, 1] : 0.8, backgroundColor: isActive ? "#1B7A6E" : "#f3f4f6", color: isActive ? "#ffffff" : "#9ca3af" }}
+                  transition={{ delay, duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
                   className={`w-[42px] h-[42px] rounded-full flex items-center justify-center relative z-10 shadow-sm border-[3.5px] ${isActive ? "border-teal-light" : "border-mist"}`}
                 >
                   <Icon size={18} strokeWidth={2.5} />
                 </motion.div>
-                <motion.span initial={{ opacity: 0, y: 5 }} animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 5 }} transition={{ delay: delay + 0.2, duration: 0.4 }} className="absolute -bottom-6 whitespace-nowrap text-[12px] font-bold text-teal">
+                <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 6 }} transition={{ delay: delay + 0.3, duration: 0.6, ease: "easeOut" }} className="absolute -bottom-6 whitespace-nowrap text-[12px] font-bold text-teal">
                   {step.label}
                 </motion.span>
               </div>
@@ -190,7 +190,7 @@ function ClutterWayCard({ phase }: { phase: number }) {
       <div className="mt-8 flex flex-col gap-4">
         <AnimatePresence>
           {phase >= 4 && (
-            <motion.div initial={{ opacity: 0, height: 0, scale: 0.9 }} animate={{ opacity: 1, height: "auto", scale: 1 }} className="bg-white rounded-2xl p-4 border border-white shadow-sm overflow-hidden">
+            <motion.div initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: "auto", scale: 1 }} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }} className="bg-white rounded-2xl p-4 border border-white shadow-sm overflow-hidden">
               <h4 className="text-[14px] font-bold text-teal mb-1">All your stuff, on your phone</h4>
               <p className="text-[12px] text-grey leading-snug font-medium mb-5">Need things back? Got more to store? Book pickups and deliveries anytime.</p>
               <div className="relative h-12 flex items-center justify-between px-6 bg-mist rounded-xl border border-grey-light/30">
