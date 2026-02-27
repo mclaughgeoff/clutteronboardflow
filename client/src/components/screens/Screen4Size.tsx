@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { pricing } from "@/lib/pricing";
-import { Search, ChevronRight } from "lucide-react";
+import { Sparkles, ChevronRight } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -46,33 +46,25 @@ export default function Screen4Size({ goTo }: Props) {
       <div className="flex-1">
         <button
           onClick={() => goTo('screen-advisor')}
-          className="w-full text-left p-5 rounded-2xl bg-mist border-l-4 border-l-teal border border-grey-light/40 shadow-sm transition-all hover:shadow-md"
+          className="w-full flex items-center justify-between p-4 rounded-2xl border-2 border-teal bg-teal-light transition-all text-left mb-2"
           data-testid="button-advisor-open"
         >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
-              <Search className="w-5 h-5 text-teal" />
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-teal flex-shrink-0" />
+            <div>
+              <span className="font-semibold text-sm text-charcoal">Not sure? Get a recommendation</span>
+              <span className="block text-xs text-teal mt-0.5">Tell us what you're storing</span>
             </div>
-            <div className="flex-1">
-              <span className="block font-semibold text-[15px] text-charcoal">Tell us what you're storing</span>
-              <span className="block text-sm text-grey mt-1 leading-relaxed">
-                Get an accurate size recommendation
-              </span>
-              <span className="block text-xs text-teal mt-2 font-medium">
-                Customers who use this save an average of $23/mo by getting the right size.
-              </span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-grey flex-shrink-0 mt-2" />
           </div>
+          <ChevronRight className="w-4 h-4 text-teal flex-shrink-0" />
         </button>
 
-        <div className="flex items-center gap-4 my-6">
+        <div className="flex items-center gap-4 my-5">
           <div className="flex-1 h-px bg-grey-light" />
-          <span className="text-xs text-grey font-medium bg-white px-3">or</span>
+          <span className="text-xs text-grey font-medium">or pick a size</span>
           <div className="flex-1 h-px bg-grey-light" />
         </div>
 
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-grey mb-3">Quick select</p>
         <div className="space-y-2">
           {quickOptions.map((opt) => (
             <button
