@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import type { SubjobFreq } from "@/lib/state";
-import { Archive, RefreshCw, Repeat, Zap, CheckCircle, Info } from "lucide-react";
+import { Archive, RefreshCw, Repeat, Zap, CheckCircle } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -114,18 +114,9 @@ export default function Screen5CSubjobs({ goTo }: Props) {
           How often will you need{' '}
           <span className="text-teal"><em>something back?</em></span>
         </h1>
-        <p className="text-grey text-[15px] mb-4" data-testid="text-subtitle">
-          After your items are in storage, you can ask us to return specific things, drop off new items, or swap things out — any time you need.
+        <p className="text-grey text-[15px] mb-7" data-testid="text-subtitle">
+          Manage your items from the app. Easily request individual item returns, or add new stuff to storage.
         </p>
-
-        <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-teal-light border border-teal/10 mb-6" data-testid="card-info-subjobs">
-          <Info className="w-4 h-4 text-teal flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-teal leading-relaxed">
-            <p className="font-semibold mb-1">Extra visits included in your plan:</p>
-            <p>3 to 7 months:    1 free return or swap visit</p>
-            <p>8 months or more: 4 free return or swap visits</p>
-          </div>
-        </div>
 
         <div className="space-y-3">
           {options.map((opt) => {
