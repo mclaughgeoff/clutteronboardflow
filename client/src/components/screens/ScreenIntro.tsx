@@ -104,25 +104,25 @@ function OldWayCard({ phase }: { phase: number }) {
       </div>
 
       <div className="relative w-full overflow-hidden mt-2 mb-2">
-        <div className="relative h-20 mx-2">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="none">
-            <motion.path d="M 10,40 Q 40,10 70,40 T 130,40 T 190,40 T 250,40 T 290,40" fill="transparent" stroke="#ffedd5" strokeWidth="3" strokeLinecap="round" className="opacity-60" />
-            <motion.path d="M 10,40 Q 40,10 70,40 T 130,40 T 190,40 T 250,40 T 290,40" fill="transparent" stroke="#f97316" strokeWidth="3" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: phase >= 1 ? 1 : 0 }} transition={{ duration: 3, ease: "linear" }} />
+        <div className="relative h-24 mx-2">
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 96" preserveAspectRatio="none">
+            <motion.path d="M 10,48 Q 40,18 70,48 T 130,48 T 190,48 T 250,48 T 290,48" fill="transparent" stroke="#ffedd5" strokeWidth="3" strokeLinecap="round" className="opacity-60" />
+            <motion.path d="M 10,48 Q 40,18 70,48 T 130,48 T 190,48 T 250,48 T 290,48" fill="transparent" stroke="#f97316" strokeWidth="3" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: phase >= 1 ? 1 : 0 }} transition={{ duration: 3, ease: "linear" }} />
           </svg>
-          <div className="absolute inset-0 flex justify-between items-center px-1">
-            {["Pack it", "Rent van", "Haul it", "Unload", "Lock up"].map((label, i) => {
-              const staggerDelay = 3 / 5;
-              const isTop = i % 2 === 0;
-              return (
-                <div key={i} className="relative flex flex-col items-center">
-                  <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: phase >= 1 ? 1 : 0, opacity: phase >= 1 ? 1 : 0 }} transition={{ delay: phase >= 1 ? i * staggerDelay : 0, duration: 0.2 }} className="w-2.5 h-2.5 bg-orange-500 rounded-full border-[2px] border-white shadow-sm z-10" />
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: phase >= 1 ? 1 : 0 }} transition={{ delay: phase >= 1 ? i * staggerDelay + 0.1 : 0 }} className={`absolute ${isTop ? "-top-5" : "-bottom-5"}`}>
-                    <span className="whitespace-nowrap block text-[8px] font-bold text-grey/70">{label}</span>
-                  </motion.div>
-                </div>
-              );
-            })}
-          </div>
+          {["Pack it", "Rent van", "Haul it", "Unload", "Lock up"].map((label, i) => {
+            const staggerDelay = 3 / 5;
+            const isTop = i % 2 === 0;
+            const xPcts = [3.3, 23.3, 43.3, 63.3, 93.3];
+            const yPct = 50;
+            return (
+              <div key={i} className="absolute flex flex-col items-center" style={{ left: `${xPcts[i]}%`, top: `${yPct}%`, transform: 'translate(-50%, -50%)' }}>
+                <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: phase >= 1 ? 1 : 0, opacity: phase >= 1 ? 1 : 0 }} transition={{ delay: phase >= 1 ? i * staggerDelay : 0, duration: 0.2 }} className="w-3 h-3 bg-orange-500 rounded-full border-[2px] border-white shadow-sm z-10" />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: phase >= 1 ? 1 : 0 }} transition={{ delay: phase >= 1 ? i * staggerDelay + 0.1 : 0 }} className={`absolute ${isTop ? "-top-7" : "-bottom-7"}`}>
+                  <span className="whitespace-nowrap block text-[8px] font-bold text-grey/70">{label}</span>
+                </motion.div>
+              </div>
+            );
+          })}
         </div>
 
         <AnimatePresence>
