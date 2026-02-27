@@ -1,0 +1,646 @@
+Got it — looks like the prompt got cut off mid-generation. Let me write the complete version now.
+
+---
+
+**Replit Update Prompt: Pricing Rebuild, Advisor Widget Upgrade, Storage Flow Restructure**
+
+---
+
+> This is a targeted update to the existing Clutter sign-up flow. Apply every change below precisely. Do not modify screens or components not mentioned.
+>
+> ---
+>
+> ## CHANGE 1 — Rebuild Pricing Logic Entirely
+>
+> Replace `lib/pricing.ts` completely with the following. Labor is now a separate flat one-time fee — never monthly. Monthly storage rates are recalculated accordingly.
+>
+> ```ts
+> // lib/pricing.ts
+>
+> export const pricing = [
+>   { key:'5x5',   label:'5×5',   friendly:'Small Closet',     m2m:88,  four:80,  eight:71  },
+>   { key:'5x10',  label:'5×10',  friendly:'Walk-in Closet',   m2m:146, four:133, eight:122 },
+>   { key:'10x10', label:'10×10', friendly:'Garage',            m2m:233, four:212, eight:194 },
+>   { key:'10x15', label:'10×15', friendly:'Studio Apartment',  m2m:341, four:310, eight:284 },
+>   { key:'10x20', label:'10×20', friendly:'One Bedroom',       m2m:461, four:419, eight:382 },
+>   { key:'10x25', label:'10×25', friendly:'Two Bedroom',       m2m:597, four:543, eight:497 },
+>   { key:'10x30', label:'10×30', friendly:'Three Bedroom',     m2m:682, four:620, eight:567 },
+>   { key:'10x40', label:'10×40', friendly:'Four Bedroom',      m2m:807, four:734, eight:672 },
+> ]
+> // M2M = four × 1.10 rounded. Flexibility premium only — labor is separate.
+>
+> // ONE-TIME LABOR FEES
+> // Included free on Committed and Long Haul plans.
+> // Charged on Flexible plan.
+> export const laborFees = {
+>   whiteglove: { pickup: 149, delivery: 149 },
+>   prepacked:  { pickup: 99,  delivery: 99  },
+>   youload:    { pickup: 79,  delivery: 79  },
+> }
+>
+> // TIER SAVINGS LABELS
+> // Shown on tier selection screen. No absolute prices shown there.
+> export const tierSavingsLabel: Record<Tier, string | null> = {
+>   whiteglove: null,
+>   prepacked:  'Save ~10%',
+>   youload:    'Save ~20%',
+> }
+>
+> // PROGRESSIVE DISCOUNT SCHEDULE
+> export const progressiveDiscounts: Record<Plan, { startMonth: number; mult: number }[]> = {
+>   committed: [
+>     { startMonth: 1, mult: 1.00 },
+>     { startMonth: 5, mult: 0.90 },
+>     { startMonth: 9, mult: 0.81 },
+>   ],
+>   longhaul: [
+>     { startMonth: 1, mult: 1.00 },
+>     { startMonth: 9, mult: 0.90 },
+>   ],
+>   flexible: [
+>     { startMonth: 1, mult: 1.00 },
+>   ],
+> }
+>
+> export function getBaseRate(sizeIdx: number, plan: Plan): number {
+>   const p = pricing[sizeIdx]
+>   if (plan === 'committed') return p.four
+>   if (plan === 'longhaul')  return p.eight
+>   return p.m2m
+> }
+>
+> export function getRateAtMonth(base: number, plan: Plan, month: number): number {
+>   const schedule = progressiveDiscounts[plan]
+>   let mult = 1.0
+>   for (const tier of schedule) {
+>     if (month >= tier.startMonth) mult = tier.mult
+>   }
+>   return Math.round(base * mult)
+> }
+>
+> export function getLaborCost(tier: Tier, plan: Plan): { pickup: number; delivery: number } {
+>   if (plan === 'committed' || plan === 'longhaul') {
+>     return { pickup: 0, delivery: 0 } // included
+>   }
+>   return laborFees[tier]
+> }
+>
+> export function getPlanBreakdown(sizeIdx: number, plan: Plan, tier: Tier) {
+>   const base = getBaseRate(sizeIdx, plan)
+>   const labor = getLaborCost(tier, plan)
+>   const commitMonths = plan === 'longhaul' ? 8 : plan === 'committed' ? 4 : 1
+>
+>   const month5Rate = plan === 'committed' ? getRateAtMonth(base, plan, 5) : null
+>   const month9Rate = getRateAtMonth(base, plan, 9)
+>
+>   const periodTotal = base * commitMonths + labor.pickup + labor.delivery
+>
+>   return {
+>     base,
+>     labor,
+>     commitMonths,
+>     periodTotal,
+>     month5Rate,   // null if not committed
+>     month9Rate,
+>   }
+> }
+> ```
+>
+> ---
+>
+> ## CHANGE 2 — Remove Situation Screen from Storage Flow
+>
+> Delete `Screen2Situation.tsx` from the storage routing entirely.
+>
+> Update `FlowController.tsx` so Branch A routes as follows:
+>
+> ```
+> Screen1Zip
+> → Screen2Intent
+> → Screen3Education       (auto-advance interstitial)
+> → Screen4Size            (dual-path: advisor widget + quick select)
+> → Screen5Confirmation    (size confirmation)
+> → Screen5BTimeline       (NEW — how long do you need storage?)
+> → Screen6Tier            (how do you want us to pick up?)
+> → Screen7Pricing         (personalized plan reveal)
+> → Screen8Date            (date + availability)
+> → Screen9Lead            (lead capture + address)
+> → Screen10Addons
+> → Screen11Review
+> → ScreenSuccess
+> ```
+>
+> `state.plan` is now set by Screen5BTimeline, not by situation defaults.
+> `state.sizeIdx` is now set by Screen4Size, not by situation defaults.
+> Remove all references to `state.situation` and `situationDefaults` from the storage flow. Keep them only in moving flow components.
+>
+> ---
+>
+> ## CHANGE 3 — New Screen 5B: Storage Timeline
+>
+> **Component:** `Screen5BTimeline.tsx`
+>
+> h1: `When do you think you'll want <em>your items back?</em>`
+> Subtitle: "This helps us recommend the plan that saves you the most money."
+>
+> Four selectable cards, stacked, full width. Each has a small Lucide icon, bold title, grey descriptor, and sets `state.plan` on selection:
+>
+> **Card 1 — Under 3 months**
+> Icon: Zap
+> Title: "Under 3 months"
+> Descriptor: "Short term — I have an end date in mind"
+> Sets: `state.plan = 'flexible'`
+> On selection, show inline teal callout (AnimatePresence slide-down):
+> "Heads up — customers who commit to 4 months often pay less overall once labor costs are factored in. We'll show you the comparison."
+>
+> **Card 2 — 3 to 6 months**
+> Icon: Calendar
+> Title: "3 to 6 months"
+> Descriptor: "A few months — maybe a little longer"
+> Sets: `state.plan = 'committed'`
+>
+> **Card 3 — 6 months or more**
+> Icon: CalendarRange (or Clock)
+> Title: "6 months or more"
+> Descriptor: "Probably most of the year, or longer"
+> Sets: `state.plan = 'longhaul'`
+>
+> **Card 4 — Not sure yet**
+> Icon: HelpCircle
+> Title: "Not sure yet"
+> Descriptor: "It could be a while — I'll figure it out as I go"
+> Sets: `state.plan = 'longhaul'`
+> On selection, show inline grey callout:
+> "No problem — we'll set you up on our best-value plan. You can always adjust later from your account."
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ## CHANGE 4 — Upgrade Screen 4: Advisor Widget + Quick Select
+>
+> Rebuild `Screen4Size.tsx` entirely with the following structure.
+>
+> h1: `How much space <em>do you need?</em>`
+> Subtitle: "We'll lower your rate if you end up needing less space."
+>
+> ---
+>
+> ### TOP SECTION — Advisor Widget (Primary, Elevated)
+>
+> This is now the primary, visually dominant option at the top of the screen. It should have slightly more visual weight than the quick select below — teal left border accent (4px), mist background, subtle shadow.
+>
+> **Header row:**
+> ```
+> [Search icon — teal]  Tell us what you're storing
+>                        Get an accurate size recommendation
+> ```
+> Below that, in smaller grey text:
+> "Customers who use this save an average of $23/mo by getting the right size."
+>
+> Tapping anywhere on this card **navigates to a new dedicated screen** (`ScreenAdvisor.tsx` — see below). It does NOT expand inline. This is a full screen experience now.
+>
+> Style the card as a prominent tappable CTA — full width, mist bg, teal left border, ChevronRight icon on the right edge, title in semi-bold charcoal.
+>
+> ---
+>
+> ### "or" DIVIDER
+>
+> Thin horizontal rule, "or" centered in white bg, grey 12px text. Adequate vertical spacing above and below.
+>
+> ---
+>
+> ### BOTTOM SECTION — Quick Select
+>
+> Label above (small caps, grey): "Quick select"
+>
+> Five compact cards in a single column. Each shows bedroom label (bold) + size dimensions (grey, smaller):
+>
+> - Studio / Small apartment — 5×5 to 5×10
+> - 1 Bedroom — 10×20
+> - 2 Bedroom — 10×25
+> - 3 Bedroom — 10×30
+> - 4+ Bedroom — 10×40
+>
+> Tapping a quick select card sets `state.sizeIdx`, `state.sizeName`, `state.sizeMethod = 'quick'` and advances directly to Screen 5 (size confirmation). No CTA button needed — tap to advance.
+>
+> ---
+>
+> ## CHANGE 5 — New Dedicated Advisor Screen
+>
+> **Component:** `ScreenAdvisor.tsx`
+>
+> This replaces the inline item checklist. It is a full screen in the flow with its own entry in the screen history stack.
+>
+> h1: `Tell us what <em>you're storing.</em>`
+> Subtitle: "Add your items and we'll recommend the right size."
+>
+> ---
+>
+> ### Item Search + Quick-Add Chips
+>
+> ```
+> [Search icon box — teal bg]  [Search input — "Search items..."]
+> ```
+>
+> Below search input, show quick-add chip rows:
+>
+> Row 1 label "Furniture":
+> Sofa · Loveseat · Armchair · Bed (Queen) · Bed (King) · Bed (Twin) · Mattress · Dresser · Nightstand · Desk · Dining Table · Dining Chair · Coffee Table · Bookshelf · TV Stand · Wardrobe
+>
+> Row 2 label "Appliances":
+> Refrigerator · Washer · Dryer · Dishwasher · Microwave · Air Conditioner
+>
+> Row 3 label "Boxes & Misc":
+> Box (Small) · Box (Medium) · Box (Large) · Bike · Sports Gear · TV (Large) · Rug · Mirror · Lamp
+>
+> Chips are teal-bordered pills. Tapping a chip adds the item to the selected list and increments its count if already added. Search filters all chips in real time.
+>
+> ---
+>
+> ### Selected Items List
+>
+> Above the search, show selected items as removable teal chips with a count badge and a × to remove:
+> ```
+> [Queen Bed ×1  ×]  [Sofa ×1  ×]  [Box (Medium) ×3  ×]
+> ```
+> Tapping a chip increments count. Tapping × removes it.
+>
+> ---
+>
+> ### Cubic Footage Reference Table
+>
+> Store this in `lib/items.ts`. Do NOT display raw cuft numbers to the user — use only for calculation:
+>
+> ```ts
+> export const itemLibrary = [
+>   // Furniture
+>   { name: 'Sofa',           cuft: 40  },
+>   { name: 'Loveseat',       cuft: 25  },
+>   { name: 'Armchair',       cuft: 15  },
+>   { name: 'Bed (Queen)',    cuft: 60  },
+>   { name: 'Bed (King)',     cuft: 75  },
+>   { name: 'Bed (Twin)',     cuft: 35  },
+>   { name: 'Mattress',       cuft: 40  },
+>   { name: 'Dresser',        cuft: 25  },
+>   { name: 'Nightstand',     cuft: 8   },
+>   { name: 'Desk',           cuft: 20  },
+>   { name: 'Dining Table',   cuft: 30  },
+>   { name: 'Dining Chair',   cuft: 8   },
+>   { name: 'Coffee Table',   cuft: 15  },
+>   { name: 'Bookshelf',      cuft: 20  },
+>   { name: 'TV Stand',       cuft: 15  },
+>   { name: 'Wardrobe',       cuft: 35  },
+>   // Appliances
+>   { name: 'Refrigerator',   cuft: 45  },
+>   { name: 'Washer',         cuft: 30  },
+>   { name: 'Dryer',          cuft: 30  },
+>   { name: 'Dishwasher',     cuft: 20  },
+>   { name: 'Microwave',      cuft: 5   },
+>   { name: 'Air Conditioner',cuft: 15  },
+>   // Boxes & Misc
+>   { name: 'Box (Small)',    cuft: 3   },
+>   { name: 'Box (Medium)',   cuft: 5   },
+>   { name: 'Box (Large)',    cuft: 8   },
+>   { name: 'Bike',           cuft: 15  },
+>   { name: 'Sports Gear',    cuft: 10  },
+>   { name: 'TV (Large)',     cuft: 15  },
+>   { name: 'Rug',            cuft: 10  },
+>   { name: 'Mirror',         cuft: 8   },
+>   { name: 'Lamp',           cuft: 5   },
+> ]
+>
+> // Cuft thresholds → size index
+> export const cuftThresholds = [
+>   { maxCuft: 50,  sizeIdx: 0 },  // 5×5
+>   { maxCuft: 100, sizeIdx: 1 },  // 5×10
+>   { maxCuft: 200, sizeIdx: 2 },  // 10×10
+>   { maxCuft: 350, sizeIdx: 3 },  // 10×15
+>   { maxCuft: 500, sizeIdx: 4 },  // 10×20
+>   { maxCuft: 650, sizeIdx: 5 },  // 10×25
+>   { maxCuft: 800, sizeIdx: 6 },  // 10×30
+>   { maxCuft: 9999,sizeIdx: 7 },  // 10×40
+> ]
+>
+> export function getSizeFromItems(
+>   items: { name: string; count: number }[]
+> ): number {
+>   const totalCuft = items.reduce((sum, item) => {
+>     const ref = itemLibrary.find(i => i.name === item.name)
+>     return sum + (ref ? ref.cuft * item.count : 0)
+>   }, 0)
+>
+>   for (const threshold of cuftThresholds) {
+>     if (totalCuft <= threshold.maxCuft) return threshold.sizeIdx
+>   }
+>   return 7
+> }
+>
+> export function getCuftTotal(items: { name: string; count: number }[]): number {
+>   return items.reduce((sum, item) => {
+>     const ref = itemLibrary.find(i => i.name === item.name)
+>     return sum + (ref ? ref.cuft * item.count : 0)
+>   }, 0)
+> }
+>
+> export function getCapacity(sizeIdx: number): number {
+>   return cuftThresholds[sizeIdx].maxCuft
+> }
+> ```
+>
+> ---
+>
+> ### Live Recommendation Bar
+>
+> Pinned above the CTA at the bottom of ScreenAdvisor, always visible as items are added:
+>
+> ```
+> ┌──────────────────────────────────────────────────┐
+> │  Storage fullness                                 │
+> │  [████████░░░░░░░░░░░░░]  42%                    │
+> │                                                   │
+> │  Recommended: 5×10 Walk-in Closet                 │
+> │  from $133/mo                                     │
+> └──────────────────────────────────────────────────┘
+> ```
+>
+> **Progress bar behavior:**
+> - Fill percentage = `totalCuft / getCapacity(currentSizeIdx) * 100`
+> - Bar color: teal up to 85%, amber (#F59E0B) at 85–99%, red at 100%
+> - When fill hits 100%: bar fills red, size recommendation bumps up to next tier, bar resets and refills from new baseline
+> - Smooth CSS transition on fill width (300ms)
+> - Recommended size label and price update instantly on every item add/remove
+>
+> CTA: "Use this size →"
+> Disabled until at least 1 item is added.
+> On tap: sets `state.sizeIdx`, `state.sizeName`, `state.sizeMethod = 'advisor'`, `state.selectedItems`, advances to Screen5Confirmation.
+>
+> ---
+>
+> ## CHANGE 6 — Screen 6: Service Tier (Storage Path)
+>
+> Update `Screen6Tier.tsx` for the storage path as follows.
+>
+> **Key changes:**
+> - Show relative savings labels only (no absolute prices on this screen)
+> - Show flat labor fee amount per tier (not monthly — labeled clearly as one-time)
+> - Committed/Long Haul customers see labor as "Included"
+> - Plan context banner at top
+>
+> h1: `How do you want us <em>to pick up?</em>`
+>
+> **Plan context banner** (teal-light bg, rounded-xl, above cards):
+> Dynamically shows based on `state.plan`:
+> - Committed: "On your 4-month plan, pickup and delivery are included free."
+> - Long Haul: "On your 8-month plan, pickup and delivery are included free."
+> - Flexible: "On a flexible plan, pickup and delivery are charged once each."
+>
+> This banner is the primary conversion nudge — flexible customers see they're paying for labor, committed customers feel rewarded.
+>
+> **Three tier cards:**
+>
+> **White Glove** (Star icon, "Most Popular" teal badge)
+> Title: "Full service — we handle everything"
+> Body: "Our team wraps every item, loads the truck, and handles all the heavy lifting."
+> Labor fee row (shown below body, separated by thin divider):
+> - If Flexible: `Pickup: $149 one-time  ·  Delivery: $149 one-time`
+> - If Committed/LongHaul: `Pickup & delivery: Included free`
+> Savings label: none (baseline)
+> Features: 3 CheckCircle lines (no prices)
+>
+> **Pre-Packed** (Package icon)
+> Title: "You pack, we load"
+> Body: "You've boxed everything up. Our team loads, transports, and stores."
+> Labor fee row:
+> - If Flexible: `Pickup: $99 one-time  ·  Delivery: $99 one-time`
+> - If Committed/LongHaul: `Pickup & delivery: Included free`
+> Savings badge: "Save ~10%"
+>
+> **You Load, We Store** (yellow border, Flex badge)
+> Title: "You load the trailer"
+> Body: "A Flex trailer drops at your door. Load on your schedule. Flex delivers to our facility."
+> Labor fee row:
+> - If Flexible: `Trailer drop-off & pickup: $158 flat (via Flex)`
+> - If Committed/LongHaul: `Included free`
+> Savings badge: "Save ~20%"
+> Footer: Flex logo (yellow square + "flex" DM Sans 300)
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ## CHANGE 7 — Screen 7: Personalized Pricing Reveal (Full Rebuild)
+>
+> Rebuild `Screen7Pricing.tsx` entirely. This is the most important screen in the flow.
+>
+> h1: `Your personalized <em>plan.</em>`
+> Subtitle: "Based on your timeline, size, and service preferences."
+>
+> Show all three plan cards. Pre-select based on `state.plan` from Screen5BTimeline.
+>
+> ---
+>
+> ### Plan Card Structure
+>
+> Each card has two sections: **Monthly Storage** and **One-Time Costs**, separated by a divider.
+>
+> ---
+>
+> #### Card 1 — Committed Plan (4+ months)
+>
+> Badge: "Most Popular" (teal) — shown if `state.plan === 'committed'`
+> Title: "Committed Plan"
+> Subtitle: "4-month minimum"
+>
+> **Monthly Storage section:**
+> ```
+> Months 1–4       $[base]/mo
+> Month 5+         drops to $[month5Rate]/mo
+> Month 9+         drops to $[month9Rate]/mo
+> ```
+> Render each line with a small teal ArrowDown icon before the "drops to" lines to visually signal reduction.
+>
+> **One-Time Costs section:**
+> ```
+> Initial pickup          Included  ✓
+> Final delivery          Included  ✓
+> ```
+> Show in teal with CheckCircle icon — "Included" is the reward for committing.
+>
+> **Estimated total box** (mist bg, rounded-xl):
+> ```
+> 4-month estimated total    $[base × 4]
+> ```
+> Note below: "Pickup and delivery included. No charges until after your first pickup."
+>
+> Savings pill (teal): "Save $[laborSavings] in labor vs. flexible plan"
+> Where `laborSavings = laborFees[tier].pickup + laborFees[tier].delivery`
+>
+> ---
+>
+> #### Card 2 — Long Haul Plan (8+ months)
+>
+> Badge: "Best Value" (teal) — shown if `state.plan === 'longhaul'`
+> Title: "Long Haul Plan"
+> Subtitle: "8-month minimum"
+>
+> **Monthly Storage section:**
+> ```
+> Months 1–8       $[base]/mo
+> Month 9+         drops to $[month9Rate]/mo
+> ```
+>
+> **One-Time Costs section:**
+> ```
+> Initial pickup          Included  ✓
+> Final delivery          Included  ✓
+> 4 extra appointments    Included  ✓
+> ```
+>
+> **Estimated total box:**
+> ```
+> 8-month estimated total    $[base × 8]
+> ```
+>
+> Savings pill: "Save $[laborSavings] in labor vs. flexible plan"
+>
+> ---
+>
+> #### Card 3 — Flexible Plan (month-to-month)
+>
+> Title: "Flexible Plan"
+> Subtitle: "No commitment — cancel anytime"
+>
+> **Monthly Storage section:**
+> ```
+> Month 1+         $[m2m]/mo
+> ```
+> No discount tiers. No progressive pricing. Clean and honest.
+>
+> **One-Time Costs section:**
+> ```
+> Initial pickup          $[laborFees[tier].pickup]
+> Final delivery          $[laborFees[tier].delivery]
+> ```
+> Shown in charcoal — not teal, not red. Neutral. Let the number speak for itself.
+>
+> **Estimated total box:**
+> ```
+> First month total    $[m2m + pickup + delivery]
+> Monthly thereafter   $[m2m]/mo
+> ```
+>
+> Grey note below: "Pickup and delivery are one-time charges — this is a premium service, not a self-storage unit."
+>
+> No savings pill. No badge.
+>
+> ---
+>
+> ### Upgrade Nudge (shown only when Flexible is selected)
+>
+> When the user selects the Flexible card, show an AnimatePresence callout below the cards:
+>
+> ```
+> On a committed plan, pickup and delivery are included free.
+> That's $[laborSavings] you'd save — often more than the difference
+> in monthly storage cost.
+>
+> [Switch to Committed Plan →]    (teal link)
+> ```
+>
+> This is the single most important conversion nudge in the entire flow. Show it clearly but not aggressively.
+>
+> ---
+>
+> ### Plan Comparison Toggle
+>
+> Below all three cards, add a collapsed "Compare all plans" link.
+> Tapping expands (AnimatePresence) a compact comparison table:
+>
+> ```
+> ┌──────────────────┬───────────┬───────────┬──────────┐
+> │                  │ Committed │ Long Haul │ Flexible │
+> ├──────────────────┼───────────┼───────────┼──────────┤
+> │ Monthly storage  │ $[four]   │ $[eight]  │ $[m2m]   │
+> │ Pickup           │ Included  │ Included  │ $[fee]   │
+> │ Delivery         │ Included  │ Included  │ $[fee]   │
+> │ Month 5+ rate    │ $[disc]   │ —         │ —        │
+> │ Month 9+ rate    │ $[disc2]  │ $[disc]   │ —        │
+> │ Extra appts      │ —         │ 4 free    │ —        │
+> └──────────────────┴───────────┴───────────┴──────────┘
+> ```
+>
+> All values dynamic from state. "Included" shown in teal. Fees in charcoal. Table scrolls horizontally if needed on small screens.
+>
+> CTA: "This plan works for me"
+>
+> ---
+>
+> ## CHANGE 8 — Education Interstitial: Remove Button, Add Auto-Advance
+>
+> Update `Screen3Education.tsx` and any other interstitial screens:
+>
+> - Remove CTA button entirely
+> - Add a dedicated teal progress bar (3px, full content width, rounded) at the bottom of the content area — separate from the top nav progress bar
+> - Animate this bar 0% → 100% over 2200ms on mount using a CSS transition
+> - Stagger the three education cards: 300ms / 700ms / 1100ms delays
+> - At 2200ms: auto-advance to next screen using the same Framer Motion exit animation as a tap
+> - Tapping anywhere on the screen at any point advances immediately
+> - Do not show any "tap to skip" label — just make the whole screen tappable
+>
+> ---
+>
+> ## CHANGE 9 — Moving Flow: "How much stuff" Language Update
+>
+> In the moving flow only, update the size selection screen:
+>
+> - Change h1 from "How much space do you need?" to `How much stuff <em>do you have?</em>`
+> - Change subtitle to "This helps us send the right team and equipment."
+> - Remove dimension labels (5×10, 10×20 etc.) from the moving path cards entirely — show bedroom/volume labels only
+> - Moving path does NOT show the advisor widget — quick select only (bedroom count is the right mental model for moving customers)
+>
+> ---
+>
+> ## CHANGE 10 — State Updates
+>
+> Add to `FlowState` in `lib/state.ts`:
+>
+> ```ts
+> // New fields
+> timeline: 'under3mo' | '3to6mo' | '6moplus' | 'unsure' | null
+> sizeMethod: 'quick' | 'advisor' | null
+> selectedItems: { name: string; count: number }[]
+> totalCuft: number
+> ```
+>
+> Remove from `FlowState`:
+> ```ts
+> situation  // no longer used in storage flow
+> ```
+>
+> Update `defaultState` accordingly.
+>
+> ---
+>
+> ## Summary: What Changes vs. What Stays the Same
+>
+> **Changes:**
+> - `lib/pricing.ts` — full rebuild, labor separated from monthly rates
+> - `lib/items.ts` — new file, item library + cuft thresholds + calculation functions
+> - `Screen2Situation.tsx` — removed from storage flow routing
+> - `Screen4Size.tsx` — rebuilt with advisor card (navigates to new screen) + quick select
+> - `ScreenAdvisor.tsx` — new dedicated screen with item search, chips, cuft calculation, fullness bar
+> - `Screen5BTimeline.tsx` — new screen, sets `state.plan` from timeline selection
+> - `Screen6Tier.tsx` — updated: relative savings only, labor fee shown as flat one-time, plan context banner
+> - `Screen7Pricing.tsx` — full rebuild: monthly + one-time sections, progressive discounts with specific drop prices, comparison table
+> - `Screen3Education.tsx` — button removed, auto-advance with loading bar
+> - Moving flow size screen — language updated, advisor widget removed
+> - `lib/state.ts` — new fields added, situation removed
+> - `FlowController.tsx` — routing updated for new screen sequence
+>
+> **Unchanged:**
+> - Screen 1 (zip), Screen 2 (intent), Screen 8 (date), Screen 9 (lead), Screen 10 (add-ons), Screen 11 (review)
+> - Design system, Tailwind config, color tokens
+> - Moving flow screens (dates, outcome, Flex handoff, confirmation)
+> - Framer Motion transition patterns
+> - Success screen

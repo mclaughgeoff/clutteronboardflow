@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isBefore, isAfter, isSameDay, startOfDay, getDay, addMonths } from "date-fns";
+import { Calendar, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isBefore, isSameDay, startOfDay, getDay, addMonths } from "date-fns";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -16,12 +16,7 @@ const screenAnim = {
 const today = startOfDay(new Date());
 const dayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-function isWeekend(d: Date) {
-  const day = getDay(d);
-  return day === 0 || day === 6;
-}
-
-function MiniCalendar({
+function DropdownCalendar({
   label,
   selectedDate,
   onSelect,
@@ -34,7 +29,18 @@ function MiniCalendar({
   minDate: Date;
   disabled?: boolean;
 }) {
-  const [viewMonth, setViewMonth] = useState(startOfMonth(minDate));
+  const [open, setOpen] = useState(false);
+  const [viewMonth, setViewMonth] = useState(startOfMonth(selectedDate || minDate));
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const days = useMemo(() => {
     const start = startOfMonth(viewMonth);
     const end = endOfMonth(viewMonth);
@@ -42,56 +48,96 @@ function MiniCalendar({
   }, [viewMonth]);
 
   const firstDayOffset = getDay(days[0]);
+  const testId = `calendar-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
   return (
-    <div className={`rounded-2xl border border-grey-light p-4 ${disabled ? 'opacity-40 pointer-events-none' : ''}`} data-testid={`calendar-${label.toLowerCase().replace(/\s+/g, '-')}`}>
-      <p className="text-xs font-semibold text-grey uppercase tracking-wider mb-3">{label}</p>
-      <div className="flex items-center justify-between mb-3">
-        <button
-          onClick={() => setViewMonth(prev => addMonths(prev, -1))}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-grey hover:bg-mist"
-          data-testid="button-prev-month"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <span className="text-sm font-semibold text-charcoal">{format(viewMonth, 'MMMM yyyy')}</span>
-        <button
-          onClick={() => setViewMonth(prev => addMonths(prev, 1))}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-grey hover:bg-mist"
-          data-testid="button-next-month"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {dayLabels.map(d => (
-          <span key={d} className="text-[10px] font-medium text-grey/60 py-1">{d}</span>
-        ))}
-        {Array.from({ length: firstDayOffset }).map((_, i) => (
-          <span key={`empty-${i}`} />
-        ))}
-        {days.map(day => {
-          const isPast = isBefore(day, minDate) && !isSameDay(day, minDate);
-          const isSelected = selectedDate && isSameDay(day, selectedDate);
-          const isDisabled = isPast || isWeekend(day);
-          return (
-            <button
-              key={day.toISOString()}
-              onClick={() => !isDisabled && onSelect(day)}
-              disabled={isDisabled}
-              className={`w-8 h-8 mx-auto rounded-full text-xs font-medium transition-all ${
-                isSelected
-                  ? 'bg-teal text-white'
-                  : isDisabled
-                    ? 'text-grey/30 cursor-not-allowed'
-                    : 'text-charcoal hover:bg-teal-light'
-              }`}
-            >
-              {format(day, 'd')}
-            </button>
-          );
-        })}
-      </div>
+    <div ref={ref} className="relative" data-testid={testId}>
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border-2 transition-all text-left ${
+          disabled
+            ? 'bg-mist border-grey-light opacity-40 cursor-not-allowed'
+            : open
+              ? 'border-teal bg-teal-light'
+              : 'border-grey-light bg-white hover:border-grey'
+        }`}
+        data-testid={`${testId}-trigger`}
+      >
+        <div>
+          <span className="block text-[10px] font-semibold text-grey uppercase tracking-wider">{label}</span>
+          <span className={`block text-[15px] font-medium mt-0.5 ${selectedDate ? 'text-charcoal' : 'text-grey/50'}`}>
+            {selectedDate ? format(selectedDate, 'EEEE, MMM d, yyyy') : 'Select a date'}
+          </span>
+        </div>
+        <ChevronDown className={`w-5 h-5 text-grey transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -4, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden mt-2 rounded-2xl border border-grey-light bg-white shadow-lg z-10 relative"
+          >
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <button
+                  onClick={() => setViewMonth(prev => addMonths(prev, -1))}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-grey hover:bg-mist"
+                  data-testid="button-prev-month"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-sm font-semibold text-charcoal">{format(viewMonth, 'MMMM yyyy')}</span>
+                <button
+                  onClick={() => setViewMonth(prev => addMonths(prev, 1))}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-grey hover:bg-mist"
+                  data-testid="button-next-month"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-7 gap-1 text-center">
+                {dayLabels.map(d => (
+                  <span key={d} className="text-[10px] font-medium text-grey/60 py-1">{d}</span>
+                ))}
+                {Array.from({ length: firstDayOffset }).map((_, i) => (
+                  <span key={`empty-${i}`} />
+                ))}
+                {days.map(day => {
+                  const isPast = isBefore(day, minDate) && !isSameDay(day, minDate);
+                  const isSelected = selectedDate && isSameDay(day, selectedDate);
+                  return (
+                    <button
+                      key={day.toISOString()}
+                      onClick={() => {
+                        if (!isPast) {
+                          onSelect(day);
+                          setOpen(false);
+                        }
+                      }}
+                      disabled={isPast}
+                      className={`w-8 h-8 mx-auto rounded-full text-xs font-medium transition-all ${
+                        isSelected
+                          ? 'bg-teal text-white'
+                          : isPast
+                            ? 'text-grey/30 cursor-not-allowed'
+                            : 'text-charcoal hover:bg-teal-light'
+                      }`}
+                    >
+                      {format(day, 'd')}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -144,7 +190,7 @@ export default function MovingScreen1Dates({ goTo }: Props) {
         </p>
 
         <div className="space-y-4">
-          <MiniCalendar
+          <DropdownCalendar
             label="Pickup Date"
             selectedDate={pickupDate}
             onSelect={(d) => {
@@ -156,8 +202,8 @@ export default function MovingScreen1Dates({ goTo }: Props) {
             minDate={addDays(today, 2)}
           />
 
-          <MiniCalendar
-            label="Delivery Date — when should we deliver to your new place?"
+          <DropdownCalendar
+            label="Delivery Date"
             selectedDate={notSure ? null : deliveryDate}
             onSelect={setDeliveryDate}
             minDate={pickupDate ? addDays(pickupDate, 1) : addDays(today, 3)}
