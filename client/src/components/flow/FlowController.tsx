@@ -23,12 +23,12 @@ const branchAScreens = [
   'screen-6', 'screen-7', 'screen-date', 'screen-lead', 'screen-addons', 'screen-review', 'screen-success'
 ];
 const branchB1Screens = [
-  'screen-1', 'screen-2b', 'screen-3', 'screen-4', 'screen-5',
+  'screen-1', 'screen-3', 'screen-4', 'screen-5',
   'screen-6', 'screen-7', 'screen-date', 'screen-lead', 'screen-addons', 'screen-review', 'screen-success'
 ];
 const branchB2Screens = ['screen-1', 'screen-flex', 'screen-lead', 'screen-success'];
 const branchB3Screens = [
-  'screen-1', 'screen-2b', 'screen-3', 'screen-4', 'screen-5',
+  'screen-1', 'screen-3', 'screen-4', 'screen-5',
   'screen-6', 'screen-7', 'screen-date', 'screen-lead', 'screen-addons', 'screen-review', 'screen-success'
 ];
 const branchB4Screens = ['screen-1', 'screen-flex', 'screen-lead', 'screen-success'];

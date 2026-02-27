@@ -43,7 +43,7 @@ export default function Screen1Intent({ goTo }: Props) {
     });
 
     if (branch === 'A') goTo('screen-2');
-    else if (branch === 'B1' || branch === 'B3') goTo('screen-2b');
+    else if (branch === 'B1' || branch === 'B3') goTo('screen-3');
     else if (branch === 'B2' || branch === 'B4') goTo('screen-flex');
   }
 
