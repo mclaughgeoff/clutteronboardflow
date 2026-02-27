@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { laborFees, getPlanBreakdown, getAvgMonthlyCost } from "@/lib/pricing";
 import type { Plan } from "@/lib/state";
-import { CheckCircle, Circle, ArrowDown, ChevronDown } from "lucide-react";
+import { CheckCircle, Circle, ChevronDown } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -34,6 +34,7 @@ export default function Screen7Pricing({ goTo }: Props) {
   const { state, setState } = useFlowState();
   const [selected, setSelected] = useState<Plan>(state.plan);
   const [showCompare, setShowCompare] = useState(false);
+  const [showDrops, setShowDrops] = useState<Record<string, boolean>>({});
 
   const laborSavings = laborFees[state.tier].pickup + laborFees[state.tier].delivery;
 
@@ -105,8 +106,31 @@ export default function Screen7Pricing({ goTo }: Props) {
         <div className="space-y-1 text-sm mb-3">
           <div className="flex justify-between"><span className="text-grey">Months 1–4</span><span className="text-charcoal font-medium">${displayRate}/mo</span></div>
           {renderSubjobRow('committed', bd)}
-          {bd.month5Rate && <div className="flex justify-between items-center"><span className="text-grey flex items-center gap-1"><ArrowDown className="w-3 h-3 text-teal" />Month 5+</span><span className="text-teal font-medium">drops to ${bd.month5Rate}/mo</span></div>}
-          <div className="flex justify-between items-center"><span className="text-grey flex items-center gap-1"><ArrowDown className="w-3 h-3 text-teal" />Month 9+</span><span className="text-teal font-medium">drops to ${bd.month9Rate}/mo</span></div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setShowDrops(prev => ({ ...prev, committed: !prev.committed })); }}
+            className="flex items-center gap-1 text-xs text-teal font-medium mt-1"
+            data-testid="button-drops-committed"
+          >
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDrops.committed ? 'rotate-180' : ''}`} />
+            Future rate drops
+          </button>
+          <AnimatePresence>
+            {showDrops.committed && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-1 text-sm mt-1.5 pl-1 border-l-2 border-teal/20 ml-1">
+                  {bd.month5Rate && <div className="flex justify-between items-center pl-2"><span className="text-grey">Month 5+</span><span className="text-teal font-medium">${bd.month5Rate}/mo</span></div>}
+                  <div className="flex justify-between items-center pl-2"><span className="text-grey">Month 9+</span><span className="text-teal font-medium">${bd.month9Rate}/mo</span></div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="border-t border-grey-light pt-2.5 mb-3">
@@ -164,7 +188,30 @@ export default function Screen7Pricing({ goTo }: Props) {
         <div className="space-y-1 text-sm mb-3">
           <div className="flex justify-between"><span className="text-grey">Months 1–8</span><span className="text-charcoal font-medium">${displayRate}/mo</span></div>
           {renderSubjobRow('longhaul', bd)}
-          <div className="flex justify-between items-center"><span className="text-grey flex items-center gap-1"><ArrowDown className="w-3 h-3 text-teal" />Month 9+</span><span className="text-teal font-medium">drops to ${bd.month9Rate}/mo</span></div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setShowDrops(prev => ({ ...prev, longhaul: !prev.longhaul })); }}
+            className="flex items-center gap-1 text-xs text-teal font-medium mt-1"
+            data-testid="button-drops-longhaul"
+          >
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDrops.longhaul ? 'rotate-180' : ''}`} />
+            Future rate drops
+          </button>
+          <AnimatePresence>
+            {showDrops.longhaul && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-1 text-sm mt-1.5 pl-1 border-l-2 border-teal/20 ml-1">
+                  <div className="flex justify-between items-center pl-2"><span className="text-grey">Month 9+</span><span className="text-teal font-medium">${bd.month9Rate}/mo</span></div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="border-t border-grey-light pt-2.5 mb-3">
