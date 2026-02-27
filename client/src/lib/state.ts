@@ -7,6 +7,7 @@ export type Plan = 'committed' | 'longhaul' | 'flexible'
 export type ArrivalType = 'flexible' | 'scheduled'
 export type SizeMethod = 'quick' | 'advisor'
 export type MovingRoute = 'clutter' | 'flex'
+export type Timeline = 'under3mo' | '3to6mo' | '6moplus' | 'unsure'
 
 export interface FlowState {
   zip: string
@@ -15,9 +16,11 @@ export interface FlowState {
   moveDistance: 'local' | 'longdistance' | null
   branch: Branch | null
   situation: Situation | null
+  timeline: Timeline | null
   sizeMethod: SizeMethod | null
   selectedBedrooms: string | null
-  selectedItems: string[]
+  selectedItems: { name: string; count: number }[]
+  totalCuft: number
   sizeIdx: number
   sizeName: string
   plan: Plan
@@ -50,11 +53,13 @@ export const defaultState: FlowState = {
   moveDistance: null,
   branch: null,
   situation: null,
+  timeline: null,
   sizeMethod: null,
   selectedBedrooms: null,
   selectedItems: [],
+  totalCuft: 0,
   sizeIdx: 4,
-  sizeName: '10x20 One Bedroom',
+  sizeName: '10×20 One Bedroom',
   plan: 'committed',
   tier: 'whiteglove',
   pickupDate: null,

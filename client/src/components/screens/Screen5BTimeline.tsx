@@ -1,0 +1,156 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useFlowState } from "@/lib/state";
+import type { Plan, Timeline } from "@/lib/state";
+import { Zap, Calendar, Clock, HelpCircle, CheckCircle } from "lucide-react";
+
+interface Props { goTo: (s: string) => void; goBack: () => void; }
+
+const screenAnim = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -4 },
+  transition: { duration: 0.22, ease: "easeOut" as const },
+};
+
+const options: {
+  key: Timeline;
+  icon: typeof Zap;
+  title: string;
+  desc: string;
+  plan: Plan;
+  callout?: { text: string; color: 'teal' | 'grey' };
+}[] = [
+  {
+    key: 'under3mo',
+    icon: Zap,
+    title: 'Under 3 months',
+    desc: 'Short term — I have an end date in mind',
+    plan: 'flexible',
+    callout: {
+      text: "Heads up — customers who commit to 4 months often pay less overall once labor costs are factored in. We'll show you the comparison.",
+      color: 'teal',
+    },
+  },
+  {
+    key: '3to6mo',
+    icon: Calendar,
+    title: '3 to 6 months',
+    desc: 'A few months — maybe a little longer',
+    plan: 'committed',
+  },
+  {
+    key: '6moplus',
+    icon: Clock,
+    title: '6 months or more',
+    desc: 'Probably most of the year, or longer',
+    plan: 'longhaul',
+  },
+  {
+    key: 'unsure',
+    icon: HelpCircle,
+    title: 'Not sure yet',
+    desc: "It could be a while — I'll figure it out as I go",
+    plan: 'longhaul',
+    callout: {
+      text: "No problem — we'll set you up on our best-value plan. You can always adjust later from your account.",
+      color: 'grey',
+    },
+  },
+];
+
+export default function Screen5BTimeline({ goTo }: Props) {
+  const { state, setState } = useFlowState();
+  const [selected, setSelected] = useState<Timeline | null>(state.timeline);
+
+  const selectedOption = options.find(o => o.key === selected);
+
+  function handleContinue() {
+    if (!selectedOption) return;
+    setState({ timeline: selected, plan: selectedOption.plan });
+    goTo('screen-6');
+  }
+
+  return (
+    <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
+      <div className="flex-1">
+        <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
+          When do you think you'll want <span className="text-teal font-semibold">your items back?</span>
+        </h1>
+        <p className="text-grey text-[15px] mb-7" data-testid="text-subtitle">
+          This helps us recommend the plan that saves you the most money.
+        </p>
+
+        <div className="space-y-3">
+          {options.map((opt) => {
+            const Icon = opt.icon;
+            const isSelected = selected === opt.key;
+            return (
+              <div key={opt.key}>
+                <button
+                  onClick={() => setSelected(opt.key)}
+                  className={`w-full text-left p-4 rounded-2xl border-2 transition-all duration-150 flex items-start gap-4 ${
+                    isSelected ? 'border-teal bg-teal-light' : 'border-grey-light bg-white'
+                  }`}
+                  data-testid={`button-timeline-${opt.key}`}
+                >
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    isSelected ? 'bg-teal text-white' : 'bg-mist text-grey'
+                  }`}>
+                    <Icon className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-semibold text-charcoal block text-[15px]">{opt.title}</span>
+                    <span className="text-grey text-sm mt-0.5 block">{opt.desc}</span>
+                  </div>
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-6 h-6 rounded-full bg-teal text-white flex items-center justify-center flex-shrink-0 mt-1"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </motion.div>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {isSelected && opt.callout && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className={`mt-2 p-4 rounded-xl border ${
+                        opt.callout.color === 'teal'
+                          ? 'bg-teal-light border-teal/10'
+                          : 'bg-mist border-grey-light'
+                      }`}>
+                        <p className={`text-sm leading-relaxed ${
+                          opt.callout.color === 'teal' ? 'text-teal' : 'text-grey'
+                        }`}>
+                          {opt.callout.text}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <button
+        onClick={handleContinue}
+        disabled={!selected}
+        className="w-full py-4 rounded-2xl font-semibold text-[15px] bg-teal text-white mt-8 disabled:bg-grey-light disabled:text-grey disabled:cursor-not-allowed"
+        data-testid="button-continue"
+      >
+        Continue
+      </button>
+    </motion.div>
+  );
+}

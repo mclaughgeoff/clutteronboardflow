@@ -5,12 +5,13 @@ import ProgressBar from "./ProgressBar";
 import TopNav from "./TopNav";
 import Screen1Zip from "@/components/screens/Screen1Intent";
 import Screen2Intent from "@/components/screens/Screen2Intent";
-import Screen2Situation from "@/components/screens/Screen2Situation";
 import Screen3Education from "@/components/screens/Screen3Education";
 import Screen4Size from "@/components/screens/Screen4Size";
-import Screen5Pricing from "@/components/screens/Screen5Pricing";
-import Screen6Plan from "@/components/screens/Screen6Tier";
-import Screen7Tier from "@/components/screens/Screen7Tier";
+import ScreenAdvisor from "@/components/screens/ScreenAdvisor";
+import Screen5Confirmation from "@/components/screens/Screen5Pricing";
+import Screen5BTimeline from "@/components/screens/Screen5BTimeline";
+import Screen6Tier from "@/components/screens/Screen6Tier";
+import Screen7Pricing from "@/components/screens/Screen7Tier";
 import Screen8Date from "@/components/screens/Screen7Date";
 import Screen9Lead from "@/components/screens/Screen8Lead";
 import Screen10Addons from "@/components/screens/Screen9Addons";
@@ -25,8 +26,9 @@ import MovingLeadCapture from "@/components/screens/MovingLeadCapture";
 import MovingSuccess from "@/components/screens/MovingSuccess";
 
 const branchAScreens = [
-  'screen-1', 'screen-2', 'screen-situation', 'screen-3', 'screen-4', 'screen-5',
-  'screen-6', 'screen-7', 'screen-date', 'screen-lead', 'screen-addons', 'screen-review', 'screen-success'
+  'screen-1', 'screen-2', 'screen-3', 'screen-4', 'screen-advisor', 'screen-5',
+  'screen-5b', 'screen-6', 'screen-7', 'screen-date', 'screen-lead',
+  'screen-addons', 'screen-review', 'screen-success'
 ];
 
 const movingScreens = [
@@ -77,12 +79,13 @@ export default function FlowController() {
     switch (currentScreen) {
       case 'screen-1': return <Screen1Zip key="s1" {...props} />;
       case 'screen-2': return <Screen2Intent key="s2" {...props} />;
-      case 'screen-situation': return <Screen2Situation key="ssit" {...props} />;
       case 'screen-3': return <Screen3Education key="s3" {...props} />;
       case 'screen-4': return <Screen4Size key="s4" {...props} />;
-      case 'screen-5': return <Screen5Pricing key="s5" {...props} />;
-      case 'screen-6': return <Screen6Plan key="s6" {...props} />;
-      case 'screen-7': return <Screen7Tier key="s7" {...props} />;
+      case 'screen-advisor': return <ScreenAdvisor key="sadvisor" {...props} />;
+      case 'screen-5': return <Screen5Confirmation key="s5" {...props} />;
+      case 'screen-5b': return <Screen5BTimeline key="s5b" {...props} />;
+      case 'screen-6': return <Screen6Tier key="s6" {...props} />;
+      case 'screen-7': return <Screen7Pricing key="s7" {...props} />;
       case 'screen-date': return <Screen8Date key="sdate" {...props} />;
       case 'screen-lead': return <Screen9Lead key="slead" {...props} />;
       case 'screen-addons': return <Screen10Addons key="saddons" {...props} />;

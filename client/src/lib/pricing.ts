@@ -1,34 +1,90 @@
 import type { Plan, Tier } from './state'
 
 export const pricing = [
-  { key: '5x5',   label: '5x5',   friendly: 'Small Closet',      m2m: 132,  four: 80,   eight: 71  },
-  { key: '5x10',  label: '5x10',  friendly: 'Walk-in Closet',    m2m: 146,  four: 133,  eight: 122 },
-  { key: '10x10', label: '10x10', friendly: 'Garage',             m2m: 348,  four: 212,  eight: 194 },
-  { key: '10x15', label: '10x15', friendly: 'Studio Apartment',   m2m: 509,  four: 310,  eight: 284 },
-  { key: '10x20', label: '10x20', friendly: 'One Bedroom',        m2m: 687,  four: 419,  eight: 382 },
-  { key: '10x25', label: '10x25', friendly: 'Two Bedroom',        m2m: 890,  four: 543,  eight: 497 },
-  { key: '10x30', label: '10x30', friendly: 'Three Bedroom',      m2m: 1016, four: 620,  eight: 567 },
-  { key: '10x40', label: '10x40', friendly: 'Four Bedroom',       m2m: 1203, four: 734,  eight: 672 },
+  { key: '5x5',   label: '5×5',   friendly: 'Small Closet',      m2m: 88,   four: 80,   eight: 71  },
+  { key: '5x10',  label: '5×10',  friendly: 'Walk-in Closet',    m2m: 146,  four: 133,  eight: 122 },
+  { key: '10x10', label: '10×10', friendly: 'Garage',             m2m: 233,  four: 212,  eight: 194 },
+  { key: '10x15', label: '10×15', friendly: 'Studio Apartment',   m2m: 341,  four: 310,  eight: 284 },
+  { key: '10x20', label: '10×20', friendly: 'One Bedroom',        m2m: 461,  four: 419,  eight: 382 },
+  { key: '10x25', label: '10×25', friendly: 'Two Bedroom',        m2m: 597,  four: 543,  eight: 497 },
+  { key: '10x30', label: '10×30', friendly: 'Three Bedroom',      m2m: 682,  four: 620,  eight: 567 },
+  { key: '10x40', label: '10×40', friendly: 'Four Bedroom',       m2m: 807,  four: 734,  eight: 672 },
 ]
+
+export const laborFees: Record<Tier, { pickup: number; delivery: number }> = {
+  whiteglove: { pickup: 149, delivery: 149 },
+  prepacked:  { pickup: 99,  delivery: 99  },
+  youload:    { pickup: 79,  delivery: 79  },
+}
+
+export const tierSavingsLabel: Record<Tier, string | null> = {
+  whiteglove: null,
+  prepacked:  'Save ~10%',
+  youload:    'Save ~20%',
+}
+
+export const progressiveDiscounts: Record<Plan, { startMonth: number; mult: number }[]> = {
+  committed: [
+    { startMonth: 1, mult: 1.00 },
+    { startMonth: 5, mult: 0.90 },
+    { startMonth: 9, mult: 0.81 },
+  ],
+  longhaul: [
+    { startMonth: 1, mult: 1.00 },
+    { startMonth: 9, mult: 0.90 },
+  ],
+  flexible: [
+    { startMonth: 1, mult: 1.00 },
+  ],
+}
+
+export function getBaseRate(sizeIdx: number, plan: Plan): number {
+  const p = pricing[Math.max(0, Math.min(7, sizeIdx))]
+  if (plan === 'committed') return p.four
+  if (plan === 'longhaul') return p.eight
+  return p.m2m
+}
+
+export function getRateAtMonth(base: number, plan: Plan, month: number): number {
+  const schedule = progressiveDiscounts[plan]
+  let mult = 1.0
+  for (const tier of schedule) {
+    if (month >= tier.startMonth) mult = tier.mult
+  }
+  return Math.round(base * mult)
+}
+
+export function getLaborCost(tier: Tier, plan: Plan): { pickup: number; delivery: number } {
+  if (plan === 'committed' || plan === 'longhaul') {
+    return { pickup: 0, delivery: 0 }
+  }
+  return laborFees[tier]
+}
+
+export function getPlanBreakdown(sizeIdx: number, plan: Plan, tier: Tier) {
+  const base = getBaseRate(sizeIdx, plan)
+  const labor = getLaborCost(tier, plan)
+  const commitMonths = plan === 'longhaul' ? 8 : plan === 'committed' ? 4 : 1
+
+  const month5Rate = plan === 'committed' ? getRateAtMonth(base, plan, 5) : null
+  const month9Rate = getRateAtMonth(base, plan, 9)
+
+  const periodTotal = base * commitMonths + labor.pickup + labor.delivery
+
+  return {
+    base,
+    labor,
+    commitMonths,
+    periodTotal,
+    month5Rate,
+    month9Rate,
+  }
+}
 
 export const tierMultipliers: Record<Tier, number> = {
   whiteglove: 1.0,
   prepacked: 0.9,
   youload: 0.8,
-}
-
-export function getPrice(sizeIdx: number, plan: Plan, tier: Tier): number {
-  const p = pricing[Math.max(0, Math.min(7, sizeIdx))]
-  const mult = tierMultipliers[tier]
-  if (plan === 'committed') return Math.round(p.four * mult)
-  if (plan === 'longhaul') return Math.round(p.eight * mult)
-  return Math.round(p.m2m * mult)
-}
-
-export function getSavings(sizeIdx: number, plan: Plan, tier: Tier): number {
-  const flexPrice = getPrice(sizeIdx, 'flexible', tier)
-  const currentPrice = getPrice(sizeIdx, plan, tier)
-  return flexPrice - currentPrice
 }
 
 export function getMovingQuote(

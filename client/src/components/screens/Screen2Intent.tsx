@@ -44,7 +44,7 @@ export default function Screen2Intent({ goTo }: Props) {
 
     if (selected === 'storage') {
       setState({ intent: 'storage', branch: 'A' });
-      goTo('screen-situation');
+      goTo('screen-3');
     } else if (selected === 'storage_moving') {
       setState({ intent: 'moving', branch: 'B1', situation: 'moving', needsStorage: true });
       goTo('moving-dates');

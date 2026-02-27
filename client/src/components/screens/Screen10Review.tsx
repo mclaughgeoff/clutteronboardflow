@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
-import { getPrice, pricing, tierMultipliers } from "@/lib/pricing";
+import { getBaseRate, pricing, getLaborCost } from "@/lib/pricing";
 import { format, subDays } from "date-fns";
 import { ChevronDown } from "lucide-react";
 
@@ -23,16 +23,17 @@ export default function Screen10Review({ goTo }: Props) {
   const [showPromo, setShowPromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
 
-  const monthlyPrice = getPrice(state.sizeIdx, state.plan, state.tier);
+  const monthlyPrice = getBaseRate(state.sizeIdx, state.plan);
   const size = pricing[state.sizeIdx];
   const pickupDate = state.pickupDate || new Date();
+  const labor = getLaborCost(state.tier, state.plan);
 
   let total = monthlyPrice;
   let packingCost = 0;
   let protectionCost = 0;
   let scheduledCost = state.arrivalType === 'scheduled' ? 29 : 0;
-  let pickupFee = state.plan === 'flexible' ? 149 : 0;
-  let deliveryFee = state.plan === 'flexible' ? 149 : 0;
+  let pickupFee = labor.pickup;
+  let deliveryFee = labor.delivery;
 
   if (state.addons.packing) {
     packingCost = state.addons.packing === '1-10' ? 15 : state.addons.packing === '15-25' ? 25 : 35;
@@ -44,7 +45,7 @@ export default function Screen10Review({ goTo }: Props) {
   }
 
   const savings = state.plan !== 'flexible'
-    ? getPrice(state.sizeIdx, 'flexible', state.tier) - monthlyPrice
+    ? getBaseRate(state.sizeIdx, 'flexible') - monthlyPrice
     : 0;
 
   const confirmDate = subDays(pickupDate, 2);

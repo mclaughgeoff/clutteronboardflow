@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useFlowState, type Tier } from "@/lib/state";
 import { Star, Package, Truck, CheckCircle } from "lucide-react";
-import { getPrice } from "@/lib/pricing";
+import { getBaseRate } from "@/lib/pricing";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -17,9 +17,9 @@ export default function MovingScreen3Tier({ goTo }: Props) {
   const { state, setState } = useFlowState();
   const [tier, setTier] = useState<Tier>(state.tier);
 
-  const whiteGlovePrice = getPrice(state.sizeIdx, state.plan, 'whiteglove');
-  const prepackedPrice = getPrice(state.sizeIdx, state.plan, 'prepacked');
-  const youloadPrice = getPrice(state.sizeIdx, state.plan, 'youload');
+  const whiteGlovePrice = getBaseRate(state.sizeIdx, state.plan);
+  const prepackedPrice = Math.round(whiteGlovePrice * 0.9);
+  const youloadPrice = Math.round(whiteGlovePrice * 0.8);
 
   const tiers: {
     key: Tier;
