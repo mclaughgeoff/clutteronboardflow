@@ -106,18 +106,20 @@ export default function FlowController() {
     <FlowContext.Provider value={contextValue}>
       <div className="min-h-screen bg-warm flex items-center justify-center p-4">
         <div
-          className="w-full max-w-[430px] min-h-[780px] bg-white rounded-[40px] shadow-[0_30px_80px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.06)] flex flex-col relative"
-          style={{ overflow: (currentScreen === 'screen-success' || currentScreen === 'moving-success') ? 'hidden' : undefined }}
+          className="w-full max-w-[430px] min-h-[780px] bg-white rounded-[40px] shadow-[0_30px_80px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.06)] flex flex-col relative overflow-hidden"
           data-testid="phone-frame"
         >
-          {showProgress && (
-            <ProgressBar current={Math.max(currentIdx, 0)} total={totalScreens - 1} />
-          )}
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-[120px] h-[5px] bg-grey-light rounded-full" />
+          </div>
           {showNav && (
             <TopNav
               canGoBack={screenStack.length > 1}
               onBack={goBack}
             />
+          )}
+          {showProgress && (
+            <ProgressBar current={Math.max(currentIdx, 0)} total={totalScreens - 1} />
           )}
           <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
             <AnimatePresence mode="wait">
