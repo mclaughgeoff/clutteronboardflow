@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
-import { Truck, Smartphone, Zap, Home, RotateCcw, Globe } from "lucide-react";
+import { Truck, Package, Warehouse, Send, Home, RotateCcw, Globe } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -20,35 +20,29 @@ function getHeadline(situation: string | null, branch: string | null) {
   return { pre: 'This is not a ', accent: 'storage unit.' };
 }
 
-function getCard3(situation: string | null, branch: string | null) {
+function getCard4(situation: string | null, branch: string | null) {
   if (branch === 'B1' || situation === 'moving') return {
-    icon: Home, title: 'Delivered to your new place',
-    desc: "When you're ready, we deliver to your new address. No truck, no lifting."
+    icon: Home, title: 'Deliver anywhere',
+    desc: "We'll deliver and ship items from your online inventory anywhere, anytime."
   };
   if (branch === 'B3' || situation === 'relocating') return {
-    icon: Globe, title: 'End-to-end coverage',
-    desc: "Clutter stores here. When you're settled, our partner Flex delivers long-distance."
+    icon: Globe, title: 'Deliver anywhere',
+    desc: "When you're settled, we deliver to your new address — local or long-distance."
   };
   if (situation === 'renovation') return {
-    icon: RotateCcw, title: "Back when you're ready",
-    desc: "The moment construction ends, we return everything. Same team, same care."
+    icon: RotateCcw, title: 'Return on demand',
+    desc: "When construction ends, we return everything. Same team, same care."
   };
   return {
-    icon: Zap, title: 'On-demand returns',
-    desc: "Need something back? Schedule in the app. We deliver to your door."
+    icon: Send, title: 'Deliver anywhere',
+    desc: "We'll deliver and ship items from your online inventory anywhere, anytime."
   };
-}
-
-function getCallout(situation: string | null, branch: string | null) {
-  if (branch === 'B1' || situation === 'moving') return "One booking covers pickup, storage, and final delivery — wherever that is.";
-  return "Unlike self-storage, you never rent a truck, carry boxes, or visit a facility.";
 }
 
 export default function Screen3Education({ goTo }: Props) {
   const { state } = useFlowState();
   const headline = getHeadline(state.situation, state.branch);
-  const card3 = getCard3(state.situation, state.branch);
-  const callout = getCallout(state.situation, state.branch);
+  const card4 = getCard4(state.situation, state.branch);
 
   const advance = useCallback(() => goTo('screen-4'), [goTo]);
 
@@ -58,9 +52,10 @@ export default function Screen3Education({ goTo }: Props) {
   }, [advance]);
 
   const cards = [
-    { icon: Truck, title: 'We come to you', desc: "Our team arrives, wraps your items, and loads everything. You don't lift a finger — or rent a truck." },
-    { icon: Smartphone, title: 'Your digital inventory', desc: "Every item is photographed and catalogued. See exactly what's in storage from your phone, anytime." },
-    { icon: card3.icon, title: card3.title, desc: card3.desc },
+    { icon: Truck, title: 'Pick up & inventory', desc: "We'll pick up and inventory your items — furniture too.", color: 'bg-teal' },
+    { icon: Package, title: 'Wrap & protect', desc: "We'll wrap your items using free packing materials to protect them.", color: 'bg-teal' },
+    { icon: Warehouse, title: 'Store securely', desc: "We'll safely and securely store your items in a temperature-controlled facility.", color: 'bg-teal' },
+    { icon: card4.icon, title: card4.title, desc: card4.desc, color: 'bg-teal' },
   ];
 
   return (
@@ -70,45 +65,34 @@ export default function Screen3Education({ goTo }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0 }}
-          className="font-serif text-[28px] leading-[1.15] text-charcoal mb-6"
+          className="font-serif text-[28px] leading-[1.15] text-charcoal mb-8"
           data-testid="text-headline"
         >
           {headline.pre}<span className="text-teal font-semibold">{headline.accent}</span>
         </motion.h1>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           {cards.map((card, i) => {
             const Icon = card.icon;
             return (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.3 + i * 0.4 }}
-                className="flex gap-4 p-4 bg-mist rounded-2xl"
+                transition={{ duration: 0.35, delay: 0.15 + i * 0.25 }}
+                className="flex flex-col items-center text-center"
                 data-testid={`card-education-${i}`}
               >
-                <div className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-5 h-5 text-teal" />
+                <div className="w-16 h-16 rounded-2xl bg-teal-light flex items-center justify-center mb-3">
+                  <Icon className="w-8 h-8 text-teal" />
                 </div>
-                <div>
-                  <span className="block font-semibold text-sm text-charcoal">{card.title}</span>
-                  <span className="block text-sm text-grey mt-1 leading-relaxed">{card.desc}</span>
-                </div>
+                <span className="text-[13px] text-grey leading-snug px-1">
+                  {card.desc}
+                </span>
               </motion.div>
             );
           })}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.3 }}
-          className="mt-4 p-4 bg-teal-light rounded-2xl border border-teal/10"
-          data-testid="callout-education"
-        >
-          <p className="text-sm text-teal leading-relaxed">{callout}</p>
-        </motion.div>
       </div>
 
       <div className="mt-6">
