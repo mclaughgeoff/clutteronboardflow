@@ -37,7 +37,7 @@ export default function Screen7Tier({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          How do you want us <em className="italic text-teal" style={{ fontStyle: 'italic' }}>to pick up?</em>
+          How do you want us <span className="text-teal font-semibold">to pick up?</span>
         </h1>
 
         <p className="text-xs text-grey mb-5">Recommended based on what you're storing</p>

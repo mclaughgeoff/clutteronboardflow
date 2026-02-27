@@ -58,7 +58,7 @@ export default function Screen7Date({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          When should we <em className="italic text-teal" style={{ fontStyle: 'italic' }}>pick up?</em>
+          When should we <span className="text-teal font-semibold">pick up?</span>
         </h1>
         <p className="text-grey text-[15px] mb-2" data-testid="text-subtitle">
           Free cancellation up to 48 hours before your appointment.

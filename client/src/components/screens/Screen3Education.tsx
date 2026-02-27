@@ -82,7 +82,7 @@ export default function Screen3Education({ goTo }: Props) {
           className="font-serif text-[28px] leading-[1.15] text-charcoal mb-6"
           data-testid="text-headline"
         >
-          {headline.pre}<em className="italic text-teal" style={{ fontStyle: 'italic' }}>{headline.accent}</em>
+          {headline.pre}<span className="text-teal font-semibold">{headline.accent}</span>
         </motion.h1>
 
         <div className="space-y-4">

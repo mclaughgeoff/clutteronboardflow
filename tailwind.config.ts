@@ -93,8 +93,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["'DM Sans'", "sans-serif"],
-        serif: ["'DM Serif Display'", "serif"],
+        sans: ["'Plus Jakarta Sans'", "sans-serif"],
+        serif: ["'Outfit'", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

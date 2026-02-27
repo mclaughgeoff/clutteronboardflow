@@ -46,8 +46,8 @@ export default function ScreenFlexHandoff({ goTo }: Props) {
 
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal text-center mb-2" data-testid="text-headline">
           {isLongDistance
-            ? <>Moving long distance? <em className="italic text-teal" style={{ fontStyle: 'italic' }}>We've got you.</em></>
-            : <>Moving locally? <em className="italic text-teal" style={{ fontStyle: 'italic' }}>We've got you.</em></>
+            ? <>Moving long distance? <span className="text-teal font-semibold">We've got you.</span></>
+            : <>Moving locally? <span className="text-teal font-semibold">We've got you.</span></>
           }
         </h1>
 

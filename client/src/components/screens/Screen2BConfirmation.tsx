@@ -35,7 +35,7 @@ export default function Screen2BConfirmation({ goTo, goBack }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-6" data-testid="text-headline">
-          We'll handle <em className="italic text-teal" style={{ fontStyle: 'italic' }}>the whole journey.</em>
+          We'll handle <span className="text-teal font-semibold">the whole journey.</span>
         </h1>
 
         <div className="bg-mist rounded-2xl p-6 border border-grey-light/50" data-testid="card-confirmation">

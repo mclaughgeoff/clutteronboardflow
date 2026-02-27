@@ -43,7 +43,7 @@ export default function Screen2Situation({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          What's the <em className="italic text-teal" style={{ fontStyle: 'italic' }}>situation?</em>
+          What's the <span className="text-teal font-semibold">situation?</span>
         </h1>
         <p className="text-grey text-[15px] mb-7" data-testid="text-subtitle">
           We'll personalize your plan based on what's going on.

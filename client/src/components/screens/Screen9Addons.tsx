@@ -47,7 +47,7 @@ export default function Screen9Addons({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          A few last <em className="italic text-teal" style={{ fontStyle: 'italic' }}>things.</em>
+          A few last <span className="text-teal font-semibold">things.</span>
         </h1>
         <p className="text-grey text-[15px] mb-6" data-testid="text-subtitle">
           Optional — add them now or anytime after booking.

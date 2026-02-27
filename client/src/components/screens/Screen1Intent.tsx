@@ -56,7 +56,7 @@ export default function Screen1Intent({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mt-2 mb-2" data-testid="text-headline">
-          Storage that comes <em className="italic text-teal not-italic" style={{ fontStyle: 'italic' }}>to you.</em>
+          Storage that comes <span className="text-teal font-semibold">to you.</span>
         </h1>
         <p className="text-grey text-[15px] mb-8" data-testid="text-subtitle">
           Enter your zip code to get started.

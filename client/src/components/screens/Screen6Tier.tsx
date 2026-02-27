@@ -39,7 +39,7 @@ export default function Screen6Tier({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          Your personalized <em className="italic text-teal" style={{ fontStyle: 'italic' }}>plan.</em>
+          Your personalized <span className="text-teal font-semibold">plan.</span>
         </h1>
 
         <div className="bg-teal-light rounded-2xl p-4 mb-5 border border-teal/10">

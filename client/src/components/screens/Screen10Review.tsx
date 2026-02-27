@@ -53,7 +53,7 @@ export default function Screen10Review({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          Review your <em className="italic text-teal" style={{ fontStyle: 'italic' }}>booking.</em>
+          Review your <span className="text-teal font-semibold">booking.</span>
         </h1>
         <p className="text-grey text-[15px] mb-6" data-testid="text-subtitle">
           Everything looks good? Your reservation is always free.

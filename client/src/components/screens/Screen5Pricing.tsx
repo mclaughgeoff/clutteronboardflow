@@ -89,7 +89,7 @@ export default function Screen5Pricing({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          Here's what we <em className="italic text-teal" style={{ fontStyle: 'italic' }}>recommend.</em>
+          Here's what we <span className="text-teal font-semibold">recommend.</span>
         </h1>
         <p className="text-grey text-[15px] mb-6" data-testid="text-subtitle">
           Based on what you're storing. Adjust if needed.

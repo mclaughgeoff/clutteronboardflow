@@ -64,7 +64,7 @@ export default function Screen4Size({ goTo }: Props) {
   return (
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-        How much space <em className="italic text-teal" style={{ fontStyle: 'italic' }}>do you need?</em>
+        How much space <span className="text-teal font-semibold">do you need?</span>
       </h1>
       <p className="text-grey text-[15px] mb-6" data-testid="text-subtitle">
         We'll lower your rate if you end up needing less space.
