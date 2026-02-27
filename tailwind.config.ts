@@ -11,7 +11,6 @@ export default {
         sm: ".1875rem", /* 3px */
       },
       colors: {
-        // Flat / base colors (regular buttons)
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",
@@ -75,17 +74,27 @@ export default {
           foreground: "hsl(var(--sidebar-accent-foreground) / <alpha-value>)",
           border: "var(--sidebar-accent-border)"
         },
-        status: {
-          online: "rgb(34 197 94)",
-          away: "rgb(245 158 11)",
-          busy: "rgb(239 68 68)",
-          offline: "rgb(156 163 175)",
+        teal: {
+          DEFAULT: '#1B7A6E',
+          dark: '#145F56',
+          light: '#E8F4F2',
+          mid: '#2A9B8C',
+        },
+        charcoal: '#1C1C1E',
+        mist: '#F8F7F4',
+        warm: '#EDECEA',
+        grey: {
+          DEFAULT: '#6B7280',
+          light: '#F3F4F6',
+        },
+        flex: {
+          DEFAULT: '#F5A623',
+          light: '#FFFBF0',
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
-        mono: ["var(--font-mono)"],
+        sans: ["'DM Sans'", "sans-serif"],
+        serif: ["'DM Serif Display'", "serif"],
       },
       keyframes: {
         "accordion-down": {
