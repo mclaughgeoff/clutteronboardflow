@@ -201,7 +201,7 @@ function ClutterWayCard({ phase }: { phase: number }) {
                   </motion.div>
                 </div>
                 <div className="flex-1 relative mx-4 h-full flex items-center">
-                  <div className="absolute inset-0 top-1/2 -translate-y-1/2 border-t-[2.5px] border-dashed border-teal/20" />
+                  <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-[2.5px] border-dashed border-teal/20" />
                   <motion.div initial={{ x: "0%", opacity: 0, scale: 0.5 }} animate={{ x: "280%", opacity: [0, 1, 1, 0], scale: 1 }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.5 }} className="absolute left-0 bg-teal-light border-2 border-teal text-teal p-1.5 rounded-md shadow-sm z-20">
                     <Package size={14} strokeWidth={2.5} />
                   </motion.div>
@@ -218,7 +218,7 @@ function ClutterWayCard({ phase }: { phase: number }) {
 
         <AnimatePresence>
           {phase >= 5 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white/80 backdrop-blur-md py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-white shadow-sm">
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="bg-white/80 backdrop-blur-md py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-white shadow-sm">
               <Clock size={16} className="text-teal" />
               <span className="text-[14px] font-bold text-teal tracking-tight">Hours of your time saved</span>
             </motion.div>
