@@ -112,7 +112,7 @@ function OldWayCard({ phase }: { phase: number }) {
           {["Pack it", "Rent van", "Haul it", "Unload", "Lock up"].map((label, i) => {
             const staggerDelay = 3 / 5;
             const isTop = i % 2 === 0;
-            const xPcts = [3.3, 23.3, 43.3, 63.3, 93.3];
+            const xPcts = [3.3, 23.3, 43.3, 63.3, 96.7];
             const yPct = 50;
             return (
               <div key={i} className="absolute flex flex-col items-center" style={{ left: `${xPcts[i]}%`, top: `${yPct}%`, transform: 'translate(-50%, -50%)' }}>
