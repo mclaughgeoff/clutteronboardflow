@@ -19,7 +19,14 @@ const timeWindows = ['7–10AM', '9AM–12PM', '11AM–3PM'];
 
 export default function Screen7Date({ goTo }: Props) {
   const { state, setState } = useFlowState();
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    const daysLeft = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate() - today.getDate();
+    if (daysLeft < 5) {
+      return addMonths(today, 1);
+    }
+    return today;
+  });
   const [selectedDate, setSelectedDate] = useState<Date | null>(state.pickupDate);
   const [arrivalType, setArrivalType] = useState<ArrivalType>(state.arrivalType);
   const [arrivalWindow, setArrivalWindow] = useState(state.arrivalWindow);
@@ -114,10 +121,10 @@ export default function Screen7Date({ goTo }: Props) {
                     isSelected
                       ? 'bg-teal text-white font-semibold'
                       : isPast
-                        ? 'text-grey/30 cursor-not-allowed'
+                        ? 'text-grey-light cursor-not-allowed'
                         : isUnavailable
                           ? 'text-grey/30 line-through cursor-pointer'
-                          : 'text-charcoal cursor-pointer'
+                          : 'text-charcoal font-medium cursor-pointer hover:bg-teal-light'
                   }`}
                   data-testid={`button-date-${format(day, 'yyyy-MM-dd')}`}
                 >
