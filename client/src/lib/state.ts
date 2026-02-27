@@ -7,7 +7,8 @@ export type Plan = 'committed' | 'longhaul' | 'flexible'
 export type ArrivalType = 'flexible' | 'scheduled'
 export type SizeMethod = 'quick' | 'advisor'
 export type MovingRoute = 'clutter' | 'flex'
-export type Timeline = 'under3mo' | '3to6mo' | '6moplus' | 'unsure'
+export type Timeline = 'under3mo' | '3to7mo' | '8moplus'
+export type SubjobFreq = 'never' | 'onceTwice' | 'fewTimes' | 'frequently'
 
 export interface FlowState {
   zip: string
@@ -17,6 +18,7 @@ export interface FlowState {
   branch: Branch | null
   situation: Situation | null
   timeline: Timeline | null
+  subjobFreq: SubjobFreq | null
   sizeMethod: SizeMethod | null
   selectedBedrooms: string | null
   selectedItems: { name: string; count: number }[]
@@ -54,6 +56,7 @@ export const defaultState: FlowState = {
   branch: null,
   situation: null,
   timeline: null,
+  subjobFreq: null,
   sizeMethod: null,
   selectedBedrooms: null,
   selectedItems: [],

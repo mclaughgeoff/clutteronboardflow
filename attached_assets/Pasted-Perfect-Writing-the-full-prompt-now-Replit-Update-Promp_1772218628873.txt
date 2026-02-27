@@ -1,0 +1,342 @@
+Perfect. Writing the full prompt now.
+
+---
+
+**Replit Update Prompt: Storage Timeline, Subjobs, and Tier Ordering**
+
+---
+
+> This is a targeted update to the storage-only flow (Branch A). Apply all changes below precisely. Do not modify the moving flow, Flex flow, or any screens not mentioned.
+>
+> ---
+>
+> ## CHANGE 1 — Rename and Update Screen 5B: Storage Timeline
+>
+> Update `Screen5BTimeline.tsx` as follows.
+>
+> **Rename question:**
+> h1: `How long do you need <em>storage?</em>`
+> Subtitle: "We'll recommend the plan that saves you the most."
+>
+> **Three options only** (remove the 4-card version — replace with these three):
+>
+> **Card 1 — 3 months or less**
+> Icon: Zap
+> Title: "3 months or less"
+> Descriptor: "Short term — I have a clear end date"
+> Sets: `state.timeline = 'under3mo'`, `state.plan = 'flexible'`
+> On selection, show inline teal callout (AnimatePresence):
+> "On a flexible plan, pickup and delivery are charged separately. We'll show you the full breakdown."
+>
+> **Card 2 — 3 to 7 months**
+> Icon: Calendar
+> Title: "3 to 7 months"
+> Descriptor: "A few months — maybe a little longer"
+> Sets: `state.timeline = '3to7mo'`, `state.plan = 'committed'`
+>
+> **Card 3 — 8 months or more**
+> Icon: CalendarRange
+> Title: "8 months or more"
+> Descriptor: "Long term — it could be a while"
+> Sets: `state.timeline = '8moplus'`, `state.plan = 'longhaul'`
+>
+> **Routing after this screen:**
+> - If `state.timeline === 'under3mo'` → skip Screen 5C entirely, go directly to Screen 6 (tier)
+> - If `state.timeline === '3to7mo'` or `'8moplus'` → go to Screen 5C (subjob frequency)
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ## CHANGE 2 — New Screen 5C: Subjob Frequency
+>
+> **Component:** `Screen5CSubjobs.tsx`
+>
+> Shown only when `state.timeline` is `'3to7mo'` or `'8moplus'`. Skip entirely for flexible customers.
+>
+> **Header:**
+> h1: `How often will you need <em>to swap things out?</em>`
+> Subtitle: "A sub-job is any time we make an extra visit — returning an item, picking up something new, or swapping things out."
+>
+> Small teal info card below subtitle (always visible):
+> ```
+> [Info icon]  What's included in your plan:
+>
+> Committed (3–7 mo):   1 sub-job included free
+> Long Haul (8mo+):     4 sub-jobs included free
+> ```
+> This educates the customer on what they already have before they answer, so the question feels helpful rather than extractive.
+>
+> ---
+>
+> **Four selectable cards:**
+>
+> **Card 1 — Probably never**
+> Icon: Archive
+> Title: "Probably never"
+> Descriptor: "I'm storing and leaving it — I'll retrieve everything at the end"
+> Sets: `state.subjobFreq = 'never'`
+> Price effect:
+> - Committed: -15%/mo on storage rate
+> - Long Haul: -15%/mo on storage rate
+> On selection, show inline teal callout:
+> "Since you won't use your included sub-jobs, we'll take 15% off your monthly storage rate."
+>
+> **Card 2 — Once or twice**
+> Icon: RefreshCw
+> Title: "Once or twice"
+> Descriptor: "Maybe retrieve something, or drop off a box"
+> Sets: `state.subjobFreq = 'onceTwice'`
+> Price effect: no adjustment (included in both plans)
+> No callout needed.
+>
+> **Card 3 — A few times**
+> Icon: Repeat
+> Title: "A few times"
+> Descriptor: "I'll be going back and forth a bit — 2 to 4 visits"
+> Sets: `state.subjobFreq = 'fewTimes'`
+> Price effect:
+> - Committed: +10%/mo
+> - Long Haul: no adjustment (included)
+> On selection, show inline callout — **content varies by current plan:**
+> - If `state.plan === 'committed'`: amber/warning tone callout —
+>   "At this frequency, your plan will be adjusted +10%/mo. Long Haul includes this at no extra cost. [Switch to Long Haul →]" (teal link — tapping sets `state.plan = 'longhaul'`, updates callout to confirm switch)
+> - If `state.plan === 'longhaul'`: teal callout —
+>   "All of these are included in your Long Haul plan — no adjustment needed."
+>
+> **Card 4 — Frequently**
+> Icon: Zap
+> Title: "Frequently"
+> Descriptor: "I'll be actively using my storage — 5 or more visits"
+> Sets: `state.subjobFreq = 'frequently'`
+> Price effect:
+> - Committed: +15%/mo
+> - Long Haul: +5%/mo
+> On selection, show inline callout — varies by plan:
+> - If `state.plan === 'committed'`: amber callout —
+>   "High usage adds 15%/mo to your plan. On Long Haul, it's only +5% — and you get 4 sub-jobs included. [Switch to Long Haul →]"
+> - If `state.plan === 'longhaul'`: grey neutral callout —
+>   "High usage adds a small 5% adjustment to your Long Haul plan."
+>
+> ---
+>
+> **Subjob pricing matrix — implement in `lib/pricing.ts`:**
+>
+> ```ts
+> export type SubjobFreq = 'never' | 'onceTwice' | 'fewTimes' | 'frequently'
+>
+> export const subjobMultipliers: Record
+>   SubjobFreq,
+>   Record<'committed' | 'longhaul', number>
+> > = {
+>   never:      { committed: 0.85, longhaul: 0.85 },
+>   onceTwice:  { committed: 1.00, longhaul: 1.00 },
+>   fewTimes:   { committed: 1.10, longhaul: 1.00 },
+>   frequently: { committed: 1.15, longhaul: 1.05 },
+> }
+>
+> export function getSubjobMultiplier(
+>   freq: SubjobFreq,
+>   plan: Plan
+> ): number {
+>   if (plan === 'flexible') return 1.00
+>   return subjobMultipliers[freq]?.[plan] ?? 1.00
+> }
+>
+> // Update getPlanBreakdown to apply subjob multiplier:
+> export function getPlanBreakdown(
+>   sizeIdx: number,
+>   plan: Plan,
+>   tier: Tier,
+>   subjobFreq: SubjobFreq
+> ) {
+>   const base = getBaseRate(sizeIdx, plan)
+>   const subjobMult = getSubjobMultiplier(subjobFreq, plan)
+>   const adjustedBase = Math.round(base * subjobMult)
+>   const labor = getLaborCost(tier, plan)
+>   const commitMonths = plan === 'longhaul' ? 8 : plan === 'committed' ? 4 : 1
+>
+>   const month5Rate = plan === 'committed'
+>     ? Math.round(adjustedBase * 0.90) : null
+>   const month9Rate = Math.round(adjustedBase *
+>     (plan === 'longhaul' ? 0.90 : 0.81))
+>
+>   const periodTotal = adjustedBase * commitMonths
+>     + labor.pickup + labor.delivery
+>
+>   return {
+>     base,
+>     adjustedBase,
+>     subjobMult,
+>     labor,
+>     commitMonths,
+>     periodTotal,
+>     month5Rate,
+>     month9Rate,
+>   }
+> }
+> ```
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ## CHANGE 3 — Reorder Screen 6 (Tier) Before Screen 7 (Pricing)
+>
+> This is already the intended order from the previous prompt but confirming explicitly:
+>
+> ```
+> Screen 5B  →  Timeline ("How long do you need storage?")
+> Screen 5C  →  Subjobs ("How often will you swap things out?") — skip if flexible
+> Screen 6   →  Tier ("How do you want us to pick up?")
+> Screen 7   →  Personalized pricing reveal
+> ```
+>
+> All three inputs — timeline, subjob frequency, and service tier — are collected before the customer sees a single price. The pricing screen is the payoff, not a gate.
+>
+> No changes needed to Screen 6 content beyond what was specified in the previous prompt. Confirm it is rendering after Screen 5C in the FlowController routing.
+>
+> ---
+>
+> ## CHANGE 4 — Update Screen 7 Pricing Reveal to Reflect Subjob Adjustments
+>
+> Update `Screen7Pricing.tsx` to consume `state.subjobFreq` and display the adjustment visibly.
+>
+> ### Show Subjob Adjustment on Each Plan Card
+>
+> Below the monthly storage line on Committed and Long Haul cards, add a dynamic adjustment row:
+>
+> **If subjobFreq === 'never':**
+> ```
+> Sub-job discount     −15%/mo
+>                      [base crossed out]  →  $[adjustedBase]/mo
+> ```
+> Shown in teal — this is a reward, frame it positively.
+>
+> **If subjobFreq === 'onceTwice':**
+> No adjustment row. Clean.
+>
+> **If subjobFreq === 'fewTimes' and plan === 'committed':**
+> ```
+> High-frequency adjustment     +10%/mo
+>                                $[adjustedBase]/mo
+> ```
+> Shown in amber (#F59E0B) — not alarming, just honest.
+> Below this line, add a small teal link: "Long Haul includes this free → [Switch]"
+>
+> **If subjobFreq === 'frequently' and plan === 'committed':**
+> ```
+> High-frequency adjustment     +15%/mo
+>                                $[adjustedBase]/mo
+> ```
+> Amber. Same Long Haul nudge link.
+>
+> **If subjobFreq === 'frequently' and plan === 'longhaul':**
+> ```
+> High-frequency adjustment     +5%/mo
+>                                $[adjustedBase]/mo
+> ```
+> Grey — minimal, not alarming.
+>
+> ---
+>
+> ### Show Included Subjob Allocation on Plan Cards
+>
+> On Committed and Long Haul cards, add to the "what's included" checklist:
+>
+> - Committed: `[CheckCircle teal] 1 sub-job included`
+> - Long Haul: `[CheckCircle teal] 4 sub-jobs included`
+>
+> On Flexible card, add:
+> - `[Circle grey] Sub-jobs: $49 each`
+>
+> This makes the plan comparison concrete — customers immediately see the service allocation difference.
+>
+> ---
+>
+> ### Update All Estimated Totals to Use adjustedBase
+>
+> Every price shown on Screen 7 — monthly rate, period total, drop-to prices — must use `adjustedBase` (post-subjob-multiplier), not `base`.
+>
+> ```ts
+> // In Screen7Pricing component:
+> const breakdown = getPlanBreakdown(
+>   state.sizeIdx,
+>   state.plan,
+>   state.tier,
+>   state.subjobFreq  // NEW — pass through
+> )
+>
+> // Use breakdown.adjustedBase everywhere
+> // Use breakdown.month5Rate for "drops to X in month 5"
+> // Use breakdown.month9Rate for "drops to X in month 9"
+> // Use breakdown.periodTotal for the estimated period total box
+> ```
+>
+> ---
+>
+> ## CHANGE 5 — State Updates
+>
+> Add to `FlowState` in `lib/state.ts`:
+>
+> ```ts
+> timeline: 'under3mo' | '3to7mo' | '8moplus' | null
+> subjobFreq: SubjobFreq | null   // null for flexible customers
+> ```
+>
+> Update `defaultState`:
+> ```ts
+> timeline: null,
+> subjobFreq: null,
+> ```
+>
+> ---
+>
+> ## CHANGE 6 — FlowController Routing Update
+>
+> Update the storage branch (Branch A) routing in `FlowController.tsx`:
+>
+> ```ts
+> // After Screen5Confirmation (size confirmed):
+> goTo('screen-5b-timeline')
+>
+> // After Screen5BTimeline:
+> if (state.timeline === 'under3mo') {
+>   goTo('screen-6-tier')        // skip subjobs
+> } else {
+>   goTo('screen-5c-subjobs')    // show subjobs
+> }
+>
+> // After Screen5CSubjobs:
+> goTo('screen-6-tier')
+>
+> // After Screen6Tier:
+> goTo('screen-7-pricing')
+>
+> // Everything after Screen7 unchanged
+> ```
+>
+> ---
+>
+> ## Summary
+>
+> **New screens:**
+> - `Screen5CSubjobs.tsx` — subjob frequency question with dynamic plan-switching nudge
+>
+> **Updated screens:**
+> - `Screen5BTimeline.tsx` — renamed question, 3 options instead of 4, routing logic
+> - `Screen7Pricing.tsx` — subjob adjustment rows, adjusted base prices throughout, included allocation on cards
+>
+> **Updated lib files:**
+> - `lib/pricing.ts` — `subjobMultipliers` table, `getSubjobMultiplier()`, updated `getPlanBreakdown()` signature
+> - `lib/state.ts` — `timeline` and `subjobFreq` fields added
+>
+> **Updated routing:**
+> - `FlowController.tsx` — conditional skip of Screen 5C for flexible customers
+>
+> **Unchanged:**
+> - Screen 6 content (tier selection)
+> - Screen 8 through 11
+> - Moving flow entirely
+> - Flex flow entirely
+> - Design system

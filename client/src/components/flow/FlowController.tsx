@@ -10,6 +10,7 @@ import Screen4Size from "@/components/screens/Screen4Size";
 import ScreenAdvisor from "@/components/screens/ScreenAdvisor";
 import Screen5Confirmation from "@/components/screens/Screen5Pricing";
 import Screen5BTimeline from "@/components/screens/Screen5BTimeline";
+import Screen5CSubjobs from "@/components/screens/Screen5CSubjobs";
 import Screen6Tier from "@/components/screens/Screen6Tier";
 import Screen7Pricing from "@/components/screens/Screen7Tier";
 import Screen8Date from "@/components/screens/Screen7Date";
@@ -27,7 +28,7 @@ import MovingSuccess from "@/components/screens/MovingSuccess";
 
 const branchAScreens = [
   'screen-1', 'screen-2', 'screen-3', 'screen-4', 'screen-advisor', 'screen-5',
-  'screen-5b', 'screen-6', 'screen-7', 'screen-date', 'screen-lead',
+  'screen-5b', 'screen-5c', 'screen-6', 'screen-7', 'screen-date', 'screen-lead',
   'screen-addons', 'screen-review', 'screen-success'
 ];
 
@@ -84,6 +85,7 @@ export default function FlowController() {
       case 'screen-advisor': return <ScreenAdvisor key="sadvisor" {...props} />;
       case 'screen-5': return <Screen5Confirmation key="s5" {...props} />;
       case 'screen-5b': return <Screen5BTimeline key="s5b" {...props} />;
+      case 'screen-5c': return <Screen5CSubjobs key="s5c" {...props} />;
       case 'screen-6': return <Screen6Tier key="s6" {...props} />;
       case 'screen-7': return <Screen7Pricing key="s7" {...props} />;
       case 'screen-date': return <Screen8Date key="sdate" {...props} />;

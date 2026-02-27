@@ -39,9 +39,10 @@ client/src/
 │       ├── Screen4Size.tsx         — Advisor card + quick select (storage)
 │       ├── ScreenAdvisor.tsx       — Dedicated item advisor (search, chips, cuft calc, fullness bar)
 │       ├── Screen5Pricing.tsx      — Size confirmation/adjustment cards
-│       ├── Screen5BTimeline.tsx    — Storage timeline selection (sets plan)
+│       ├── Screen5BTimeline.tsx    — Storage timeline (3 options, routes to 5C or 6)
+│       ├── Screen5CSubjobs.tsx    — Sub-job frequency (skip for flexible, adjusts pricing)
 │       ├── Screen6Tier.tsx         — Service tier selection (labor context banner)
-│       ├── Screen7Tier.tsx         — Personalized pricing reveal (3 plan cards, comparison table)
+│       ├── Screen7Tier.tsx         — Pricing reveal (subjob adjustments, comparison table)
 │       ├── Screen7Date.tsx         — Calendar + availability
 │       ├── Screen8Lead.tsx         — Contact info capture (storage flow)
 │       ├── Screen9Addons.tsx       — Optional add-ons with toggles
@@ -58,18 +59,19 @@ client/src/
 ```
 
 ## Flow Branches
-- **Branch A (Storage)**: Zip → Intent → Education → Size → Advisor (optional) → Confirmation → Timeline → Tier → Pricing → Date → Lead → Add-ons → Review → Success
+- **Branch A (Storage)**: Zip → Intent → Education → Size → Advisor (optional) → Confirmation → Timeline → Subjobs (skip if flexible) → Tier → Pricing → Date → Lead → Add-ons → Review → Success
 - **Branch B1 (Storage + Moving)**: Zip → Intent → Moving Dates → Stuff → Tier → Education → Outcome → Lead → Success
 - **Branch B2 (Move Only)**: Zip → Intent → Moving Dates → Stuff → Tier → Education → Outcome → Lead → Success
 
 ## Screen IDs
-- Storage: screen-1, screen-2, screen-3, screen-4, screen-advisor, screen-5, screen-5b, screen-6, screen-7, screen-date, screen-lead, screen-addons, screen-review, screen-success
+- Storage: screen-1, screen-2, screen-3, screen-4, screen-advisor, screen-5, screen-5b, screen-5c, screen-6, screen-7, screen-date, screen-lead, screen-addons, screen-review, screen-success
 - Moving: screen-1, screen-2, moving-dates, moving-stuff, moving-tier, moving-education, moving-outcome, moving-lead, moving-success
 
 ## Pricing Model
 - **Monthly storage**: Separate rates for M2M, 4-month (committed), 8-month (longhaul)
 - **Labor fees**: One-time, separated from monthly — included free on committed/longhaul, charged on flexible
 - **Progressive discounts**: Committed gets 10% off at month 5, 19% off at month 9; Longhaul gets 10% off at month 9
+- **Sub-job multipliers**: never=−15%, onceTwice=0, fewTimes=+10% committed/0 longhaul, frequently=+15% committed/+5% longhaul; flexible has no subjob adjustment
 - **Tier savings**: White Glove (baseline), Pre-Packed (~10% savings), You Load (~20% savings via Flex)
 - **Moving (Clutter)**: monthly rate based on auto-determined plan + pickup/delivery costs
 - **Moving (Flex)**: flat quote based on volume + tier adjustment

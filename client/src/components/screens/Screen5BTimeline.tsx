@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import type { Plan, Timeline } from "@/lib/state";
-import { Zap, Calendar, Clock, HelpCircle, CheckCircle } from "lucide-react";
+import { Zap, Calendar, CalendarRange, CheckCircle } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -19,43 +19,29 @@ const options: {
   title: string;
   desc: string;
   plan: Plan;
-  callout?: { text: string; color: 'teal' | 'grey' };
+  callout?: string;
 }[] = [
   {
     key: 'under3mo',
     icon: Zap,
-    title: 'Under 3 months',
-    desc: 'Short term — I have an end date in mind',
+    title: '3 months or less',
+    desc: 'Short term — I have a clear end date',
     plan: 'flexible',
-    callout: {
-      text: "Heads up — customers who commit to 4 months often pay less overall once labor costs are factored in. We'll show you the comparison.",
-      color: 'teal',
-    },
+    callout: "On a flexible plan, pickup and delivery are charged separately. We'll show you the full breakdown.",
   },
   {
-    key: '3to6mo',
+    key: '3to7mo',
     icon: Calendar,
-    title: '3 to 6 months',
+    title: '3 to 7 months',
     desc: 'A few months — maybe a little longer',
     plan: 'committed',
   },
   {
-    key: '6moplus',
-    icon: Clock,
-    title: '6 months or more',
-    desc: 'Probably most of the year, or longer',
+    key: '8moplus',
+    icon: CalendarRange,
+    title: '8 months or more',
+    desc: 'Long term — it could be a while',
     plan: 'longhaul',
-  },
-  {
-    key: 'unsure',
-    icon: HelpCircle,
-    title: 'Not sure yet',
-    desc: "It could be a while — I'll figure it out as I go",
-    plan: 'longhaul',
-    callout: {
-      text: "No problem — we'll set you up on our best-value plan. You can always adjust later from your account.",
-      color: 'grey',
-    },
   },
 ];
 
@@ -68,17 +54,21 @@ export default function Screen5BTimeline({ goTo }: Props) {
   function handleContinue() {
     if (!selectedOption) return;
     setState({ timeline: selected, plan: selectedOption.plan });
-    goTo('screen-6');
+    if (selected === 'under3mo') {
+      goTo('screen-6');
+    } else {
+      goTo('screen-5c');
+    }
   }
 
   return (
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          When do you think you'll want <span className="text-teal font-semibold">your items back?</span>
+          How long do you need <span className="text-teal font-semibold">storage?</span>
         </h1>
         <p className="text-grey text-[15px] mb-7" data-testid="text-subtitle">
-          This helps us recommend the plan that saves you the most money.
+          We'll recommend the plan that saves you the most.
         </p>
 
         <div className="space-y-3">
@@ -123,15 +113,9 @@ export default function Screen5BTimeline({ goTo }: Props) {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className={`mt-2 p-4 rounded-xl border ${
-                        opt.callout.color === 'teal'
-                          ? 'bg-teal-light border-teal/10'
-                          : 'bg-mist border-grey-light'
-                      }`}>
-                        <p className={`text-sm leading-relaxed ${
-                          opt.callout.color === 'teal' ? 'text-teal' : 'text-grey'
-                        }`}>
-                          {opt.callout.text}
+                      <div className="mt-2 p-4 rounded-xl border bg-teal-light border-teal/10">
+                        <p className="text-sm leading-relaxed text-teal">
+                          {opt.callout}
                         </p>
                       </div>
                     </motion.div>

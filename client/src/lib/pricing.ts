@@ -1,4 +1,4 @@
-import type { Plan, Tier } from './state'
+import type { Plan, Tier, SubjobFreq } from './state'
 
 export const pricing = [
   { key: '5x5',   label: '5×5',   friendly: 'Small Closet',      m2m: 88,   four: 80,   eight: 71  },
@@ -61,18 +61,36 @@ export function getLaborCost(tier: Tier, plan: Plan): { pickup: number; delivery
   return laborFees[tier]
 }
 
-export function getPlanBreakdown(sizeIdx: number, plan: Plan, tier: Tier) {
+export const subjobMultipliers: Record<SubjobFreq, Record<'committed' | 'longhaul', number>> = {
+  never:      { committed: 0.85, longhaul: 0.85 },
+  onceTwice:  { committed: 1.00, longhaul: 1.00 },
+  fewTimes:   { committed: 1.10, longhaul: 1.00 },
+  frequently: { committed: 1.15, longhaul: 1.05 },
+}
+
+export function getSubjobMultiplier(freq: SubjobFreq | null, plan: Plan): number {
+  if (plan === 'flexible' || !freq) return 1.00
+  return subjobMultipliers[freq]?.[plan as 'committed' | 'longhaul'] ?? 1.00
+}
+
+export function getPlanBreakdown(sizeIdx: number, plan: Plan, tier: Tier, subjobFreq?: SubjobFreq | null) {
   const base = getBaseRate(sizeIdx, plan)
+  const subjobMult = getSubjobMultiplier(subjobFreq ?? null, plan)
+  const adjustedBase = Math.round(base * subjobMult)
   const labor = getLaborCost(tier, plan)
   const commitMonths = plan === 'longhaul' ? 8 : plan === 'committed' ? 4 : 1
 
-  const month5Rate = plan === 'committed' ? getRateAtMonth(base, plan, 5) : null
-  const month9Rate = getRateAtMonth(base, plan, 9)
+  const month5Rate = plan === 'committed'
+    ? Math.round(adjustedBase * 0.90) : null
+  const month9Rate = Math.round(adjustedBase *
+    (plan === 'longhaul' ? 0.90 : 0.81))
 
-  const periodTotal = base * commitMonths + labor.pickup + labor.delivery
+  const periodTotal = adjustedBase * commitMonths + labor.pickup + labor.delivery
 
   return {
     base,
+    adjustedBase,
+    subjobMult,
     labor,
     commitMonths,
     periodTotal,
