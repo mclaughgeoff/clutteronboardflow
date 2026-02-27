@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { Truck, Smartphone, Zap, Home, RotateCcw, Globe } from "lucide-react";
@@ -46,14 +46,12 @@ function getCallout(situation: string | null, branch: string | null) {
 
 export default function Screen3Education({ goTo }: Props) {
   const { state } = useFlowState();
-  const [showCta, setShowCta] = useState(false);
-
   const headline = getHeadline(state.situation, state.branch);
   const card3 = getCard3(state.situation, state.branch);
   const callout = getCallout(state.situation, state.branch);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowCta(true), 1200);
+    const timer = setTimeout(() => goTo('screen-4'), 2400);
     return () => clearTimeout(timer);
   }, []);
 
@@ -120,18 +118,6 @@ export default function Screen3Education({ goTo }: Props) {
         </motion.div>
       </div>
 
-      {showCta && (
-        <motion.button
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={() => goTo('screen-4')}
-          className="w-full py-4 rounded-2xl font-semibold text-[15px] bg-teal text-white mt-8"
-          data-testid="button-continue"
-        >
-          Got it — show me my plan
-        </motion.button>
-      )}
     </motion.div>
   );
 }
