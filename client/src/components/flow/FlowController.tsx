@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { FlowContext, defaultState, type FlowState } from "@/lib/state";
 import ProgressBar from "./ProgressBar";
 import TopNav from "./TopNav";
+import ScreenIntro from "@/components/screens/ScreenIntro";
 import Screen1Zip from "@/components/screens/Screen1Intent";
 import Screen2Intent from "@/components/screens/Screen2Intent";
 import Screen3Education from "@/components/screens/Screen3Education";
@@ -42,12 +43,12 @@ function getScreensForBranch(branch: string | null): string[] {
   return branchAScreens;
 }
 
-const noProgressScreens = ['screen-success', 'moving-success'];
-const noNavScreens = ['screen-success', 'moving-success'];
+const noProgressScreens = ['screen-intro', 'screen-success', 'moving-success'];
+const noNavScreens = ['screen-intro', 'screen-success', 'moving-success'];
 
 export default function FlowController() {
   const [flowState, setFlowState] = useState<FlowState>(defaultState);
-  const [screenStack, setScreenStack] = useState<string[]>(['screen-1']);
+  const [screenStack, setScreenStack] = useState<string[]>(['screen-intro']);
 
   const setState = useCallback((updater: Partial<FlowState> | ((prev: FlowState) => Partial<FlowState>)) => {
     setFlowState(prev => {
@@ -78,6 +79,7 @@ export default function FlowController() {
   function renderScreen() {
     const props = { goTo, goBack };
     switch (currentScreen) {
+      case 'screen-intro': return <ScreenIntro key="sintro" {...props} />;
       case 'screen-1': return <Screen1Zip key="s1" {...props} />;
       case 'screen-2': return <Screen2Intent key="s2" {...props} />;
       case 'screen-3': return <Screen3Education key="s3" {...props} />;
