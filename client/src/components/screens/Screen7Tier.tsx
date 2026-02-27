@@ -73,7 +73,7 @@ export default function Screen7Pricing({ goTo }: Props) {
             className="text-xs text-teal font-semibold mt-1"
             data-testid="link-switch-longhaul-pricing"
           >
-            Long Haul includes this free →
+            8 Month Plan includes this free →
           </button>
         )}
       </div>
@@ -99,8 +99,8 @@ export default function Screen7Pricing({ goTo }: Props) {
         {state.plan === 'committed' && (
           <span className="inline-block bg-teal text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">Most Popular</span>
         )}
-        <p className="font-semibold text-charcoal text-[15px]">Committed Plan</p>
-        <p className="text-xs text-grey mt-0.5 mb-3">4-month minimum</p>
+        <p className="font-semibold text-charcoal text-[15px]">4 Month Storage Plan</p>
+        <p className="text-xs text-grey mt-0.5 mb-3">4-month minimum commitment</p>
 
         <p className="text-[10px] font-semibold text-grey uppercase tracking-wider mb-2">Monthly Storage</p>
         <div className="space-y-1 text-sm mb-3">
@@ -142,14 +142,6 @@ export default function Screen7Pricing({ goTo }: Props) {
           </div>
         </div>
 
-        <div className="bg-mist rounded-xl p-3 mb-3">
-          <div className="flex justify-between items-baseline">
-            <span className="text-sm text-grey">Avg monthly cost ({avg.commitMonths} months)</span>
-            <span className="font-serif text-xl text-charcoal font-bold">${avg.avgMonthly}<span className="text-sm font-sans font-medium text-grey">/mo</span></span>
-          </div>
-          <p className="text-[11px] text-teal mt-1">Pickup &amp; delivery included</p>
-        </div>
-
         <div className="bg-mist rounded-xl p-3 mb-2">
           <div className="flex justify-between text-sm"><span className="text-grey">4-month estimated total</span><span className="text-charcoal font-bold">${bd.periodTotal}</span></div>
           <p className="text-[11px] text-grey mt-1">Pickup and delivery included. No charges until after your first pickup.</p>
@@ -164,7 +156,6 @@ export default function Screen7Pricing({ goTo }: Props) {
 
   function renderLongHaul() {
     const bd = getPlanBreakdown(state.sizeIdx, 'longhaul', state.tier, state.subjobFreq);
-    const avg = getAvgMonthlyCost(state.sizeIdx, 'longhaul', state.tier, state.subjobFreq);
     const isSelected = selected === 'longhaul';
     const hasSubjobAdj = subjobLabel(state.subjobFreq, 'longhaul') !== null;
     const displayRate = hasSubjobAdj ? bd.base : bd.adjustedBase;
@@ -181,8 +172,8 @@ export default function Screen7Pricing({ goTo }: Props) {
         {state.plan === 'longhaul' && (
           <span className="inline-block bg-teal text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">Best Value</span>
         )}
-        <p className="font-semibold text-charcoal text-[15px]">Long Haul Plan</p>
-        <p className="text-xs text-grey mt-0.5 mb-3">8-month minimum</p>
+        <p className="font-semibold text-charcoal text-[15px]">8 Month Storage Plan</p>
+        <p className="text-xs text-grey mt-0.5 mb-3">8-month minimum commitment</p>
 
         <p className="text-[10px] font-semibold text-grey uppercase tracking-wider mb-2">Monthly Storage</p>
         <div className="space-y-1 text-sm mb-3">
@@ -223,16 +214,9 @@ export default function Screen7Pricing({ goTo }: Props) {
           </div>
         </div>
 
-        <div className="bg-mist rounded-xl p-3 mb-3">
-          <div className="flex justify-between items-baseline">
-            <span className="text-sm text-grey">Avg monthly cost ({avg.commitMonths} months)</span>
-            <span className="font-serif text-xl text-charcoal font-bold">${avg.avgMonthly}<span className="text-sm font-sans font-medium text-grey">/mo</span></span>
-          </div>
-          <p className="text-[11px] text-teal mt-1">Pickup, delivery &amp; 4 return visits included</p>
-        </div>
-
         <div className="bg-mist rounded-xl p-3 mb-2">
           <div className="flex justify-between text-sm"><span className="text-grey">8-month estimated total</span><span className="text-charcoal font-bold">${bd.periodTotal}</span></div>
+          <p className="text-[11px] text-grey mt-1">Pickup, delivery, and 4 return visits included.</p>
         </div>
 
         <span className="inline-block bg-teal-light text-teal text-xs font-medium px-2.5 py-1 rounded-full">
@@ -256,7 +240,7 @@ export default function Screen7Pricing({ goTo }: Props) {
         data-testid="button-plan-flexible"
       >
         {isSelected && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4"><CheckCircle className="w-5 h-5 text-teal" /></motion.div>}
-        <p className="font-semibold text-charcoal text-[15px]">Flexible Plan</p>
+        <p className="font-semibold text-charcoal text-[15px]">Monthly Storage Plan</p>
         <p className="text-xs text-grey mt-0.5 mb-3">No commitment — cancel anytime</p>
 
         <p className="text-[10px] font-semibold text-grey uppercase tracking-wider mb-2">Monthly Storage</p>
@@ -318,14 +302,14 @@ export default function Screen7Pricing({ goTo }: Props) {
             >
               <div className="mt-3 p-4 bg-teal-light rounded-xl border border-teal/10">
                 <p className="text-sm text-teal leading-relaxed">
-                  On a committed plan, pickup and delivery are included free. That's ${laborSavings} you'd save — often more than the difference in monthly storage cost.
+                  On a 4 Month plan, pickup and delivery are included free. That's ${laborSavings} you'd save — often more than the difference in monthly storage cost.
                 </p>
                 <button
                   onClick={() => setSelected('committed')}
                   className="text-sm text-teal font-semibold mt-2 flex items-center gap-1"
                   data-testid="link-switch-committed"
                 >
-                  Switch to Committed Plan →
+                  Switch to 4 Month Plan →
                 </button>
               </div>
             </motion.div>
@@ -354,9 +338,9 @@ export default function Screen7Pricing({ goTo }: Props) {
                   <thead>
                     <tr className="border-b border-grey-light">
                       <th className="text-left py-2 pr-2 text-grey font-medium"></th>
-                      <th className="text-center py-2 px-2 text-charcoal font-semibold">Committed</th>
-                      <th className="text-center py-2 px-2 text-charcoal font-semibold">Long Haul</th>
-                      <th className="text-center py-2 px-2 text-charcoal font-semibold">Flexible</th>
+                      <th className="text-center py-2 px-2 text-charcoal font-semibold">4 Month</th>
+                      <th className="text-center py-2 px-2 text-charcoal font-semibold">8 Month</th>
+                      <th className="text-center py-2 px-2 text-charcoal font-semibold">Monthly</th>
                     </tr>
                   </thead>
                   <tbody>

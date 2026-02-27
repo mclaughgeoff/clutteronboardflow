@@ -19,7 +19,7 @@ export default function Screen6Tier({ goTo }: Props) {
   const [selected, setSelected] = useState<Tier>(state.tier);
 
   const isFlexible = state.plan === 'flexible';
-  const planLabel = state.plan === 'longhaul' ? '8-month' : state.plan === 'committed' ? '4-month' : 'flexible';
+  const planLabel = state.plan === 'longhaul' ? '8 Month' : state.plan === 'committed' ? '4 Month' : 'Monthly';
 
   const showFlexWarning = selected === 'youload' && isFlexible;
 
@@ -170,7 +170,7 @@ export default function Screen6Tier({ goTo }: Props) {
             className="mt-3 p-3 bg-flex-light rounded-xl border border-flex/20"
           >
             <p className="text-xs text-grey leading-relaxed">
-              You Load requires a Committed or Long Haul plan. We'll automatically upgrade you to the Committed plan when you continue.
+              You Load requires a 4 Month or 8 Month plan. We'll automatically upgrade you to the 4 Month plan when you continue.
             </p>
           </motion.div>
         )}

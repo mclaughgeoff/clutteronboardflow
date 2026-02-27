@@ -153,9 +153,9 @@ export function getMovingQuote(
     pickupCost,
     deliveryCost,
     tierAdjustment: 0,
-    planLabel: plan === 'longhaul' ? 'Long Haul'
-      : plan === 'committed' ? 'Committed'
-      : 'Flexible'
+    planLabel: plan === 'longhaul' ? '8 Month'
+      : plan === 'committed' ? '4 Month'
+      : 'Monthly'
   }
 }
 

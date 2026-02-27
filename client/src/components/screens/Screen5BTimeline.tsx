@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import type { Plan, Timeline } from "@/lib/state";
-import { Zap, Calendar, CalendarRange, CheckCircle } from "lucide-react";
+import { Zap, Calendar, Clock, HelpCircle, CheckCircle } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -24,24 +24,32 @@ const options: {
   {
     key: 'under3mo',
     icon: Zap,
-    title: '3 months or less',
+    title: 'Under 3 months',
     desc: 'Short term — I have a clear end date',
     plan: 'flexible',
     callout: "On a flexible plan, pickup and delivery are charged separately. We'll show you the full breakdown.",
   },
   {
-    key: '3to7mo',
+    key: '3to6mo',
     icon: Calendar,
-    title: '3 to 7 months',
+    title: '3 to 6 months',
     desc: 'A few months — maybe a little longer',
     plan: 'committed',
   },
   {
-    key: '8moplus',
-    icon: CalendarRange,
-    title: '8 months or more',
+    key: '6moplus',
+    icon: Clock,
+    title: '6 months or more',
     desc: 'Long term — it could be a while',
     plan: 'longhaul',
+  },
+  {
+    key: 'unsure',
+    icon: HelpCircle,
+    title: 'Not sure yet',
+    desc: "That's okay — we'll recommend the best value",
+    plan: 'longhaul',
+    callout: "No worries. We'll default to the best-value plan. You can always change later.",
   },
 ];
 
@@ -65,10 +73,10 @@ export default function Screen5BTimeline({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          How long do you need <span className="text-teal font-semibold">storage?</span>
+          When do you think you'll want your <span className="text-teal font-semibold">items back?</span>
         </h1>
         <p className="text-grey text-[15px] mb-7" data-testid="text-subtitle">
-          We'll recommend the plan that saves you the most.
+          This helps us recommend the plan that saves you the most money.
         </p>
 
         <div className="space-y-3">

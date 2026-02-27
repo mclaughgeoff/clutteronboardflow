@@ -57,13 +57,13 @@ function getCallout(freq: SubjobFreq, plan: string): { text: string; tone: 'teal
   if (freq === 'fewTimes') {
     if (plan === 'committed') {
       return {
-        text: "At this frequency, your plan will be adjusted +10%/mo. On the Long Haul plan, this many visits are already included at no extra cost.",
+        text: "At this frequency, your plan will be adjusted +10%/mo. On the 8 Month plan, this many visits are already included at no extra cost.",
         tone: 'amber',
         showSwitch: true,
       };
     }
     return {
-      text: "All of these are included in your Long Haul plan — no adjustment needed.",
+      text: "All of these are included in your 8 Month plan — no adjustment needed.",
       tone: 'teal',
     };
   }
@@ -71,13 +71,13 @@ function getCallout(freq: SubjobFreq, plan: string): { text: string; tone: 'teal
   if (freq === 'frequently') {
     if (plan === 'committed') {
       return {
-        text: "High usage adds 15%/mo to your plan. On Long Haul, it's only +5% — and you get 4 return visits included.",
+        text: "High usage adds 15%/mo to your plan. On the 8 Month plan, it's only +5% — and you get 4 return visits included.",
         tone: 'amber',
         showSwitch: true,
       };
     }
     return {
-      text: "High usage adds a small 5% adjustment to your Long Haul plan.",
+      text: "High usage adds a small 5% adjustment to your 8 Month plan.",
       tone: 'grey',
     };
   }
@@ -173,7 +173,7 @@ export default function Screen5CSubjobs({ goTo }: Props) {
                           : 'text-grey'
                         }`}>
                           {switchedToLH && callout.showSwitch
-                            ? "Done — switched to Long Haul. This frequency is now covered."
+                            ? "Done — switched to 8 Month plan. This frequency is now covered."
                             : callout.text
                           }
                         </p>
@@ -183,7 +183,7 @@ export default function Screen5CSubjobs({ goTo }: Props) {
                             className="text-sm text-teal font-semibold mt-2 flex items-center gap-1"
                             data-testid="link-switch-longhaul"
                           >
-                            Switch to Long Haul →
+                            Switch to 8 Month Plan →
                           </button>
                         )}
                       </div>

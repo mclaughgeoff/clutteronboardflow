@@ -7,7 +7,7 @@ export type Plan = 'committed' | 'longhaul' | 'flexible'
 export type ArrivalType = 'flexible' | 'scheduled'
 export type SizeMethod = 'quick' | 'advisor'
 export type MovingRoute = 'clutter' | 'flex'
-export type Timeline = 'under3mo' | '3to7mo' | '8moplus'
+export type Timeline = 'under3mo' | '3to6mo' | '6moplus' | 'unsure'
 export type SubjobFreq = 'never' | 'onceTwice' | 'fewTimes' | 'frequently'
 
 export interface FlowState {

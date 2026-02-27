@@ -15,7 +15,7 @@ const screenAnim = {
 };
 
 const tierLabels = { whiteglove: 'White Glove', prepacked: 'Pre-Packed', youload: 'You Load' };
-const planLabels = { committed: 'Committed (4+ months)', longhaul: 'Long Haul (8+ months)', flexible: 'Flexible' };
+const planLabels = { committed: '4 Month Storage Plan', longhaul: '8 Month Storage Plan', flexible: 'Monthly Storage Plan' };
 const situationLabels = { moving: 'Moving', relocating: 'Relocating', declutter: 'Decluttering', lifechange: 'Life Change', renovation: 'Renovation', other: 'Other' };
 
 export default function Screen10Review({ goTo }: Props) {
