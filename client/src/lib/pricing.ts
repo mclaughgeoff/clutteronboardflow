@@ -30,3 +30,65 @@ export function getSavings(sizeIdx: number, plan: Plan, tier: Tier): number {
   const currentPrice = getPrice(sizeIdx, plan, tier)
   return flexPrice - currentPrice
 }
+
+export function getMovingQuote(
+  sizeIdx: number,
+  tier: Tier,
+  durationDays: number | null,
+  route: 'clutter' | 'flex'
+): {
+  monthlyRate: number
+  estimatedTotal: number | null
+  pickupCost: number
+  deliveryCost: number
+  tierAdjustment: number
+  planLabel: string
+} {
+  const p = pricing[Math.max(0, Math.min(7, sizeIdx))]
+  const mult = tierMultipliers[tier]
+
+  if (route === 'flex') {
+    const baseFlexQuote = [299, 399, 499, 649, 799, 949, 1099, 1299][sizeIdx] || 799
+    const tierAdj = tier === 'prepacked' ? -50 : tier === 'youload' ? -100 : 0
+    return {
+      monthlyRate: 0,
+      estimatedTotal: baseFlexQuote + tierAdj,
+      pickupCost: 0,
+      deliveryCost: 0,
+      tierAdjustment: tierAdj,
+      planLabel: 'Flex Move'
+    }
+  }
+
+  const months = durationDays ? Math.ceil(durationDays / 30) : null
+  const plan: Plan = !months || months >= 8 ? 'longhaul'
+    : months >= 4 ? 'committed'
+    : 'flexible'
+  const monthlyRate = Math.round(
+    (plan === 'longhaul' ? p.eight : plan === 'committed' ? p.four : p.m2m) * mult
+  )
+  const pickupCost = plan === 'flexible' ? 149 : 0
+  const deliveryCost = plan === 'flexible' ? 149 : 0
+  const estimatedTotal = months
+    ? monthlyRate * months + pickupCost + deliveryCost
+    : null
+
+  return {
+    monthlyRate,
+    estimatedTotal,
+    pickupCost,
+    deliveryCost,
+    tierAdjustment: 0,
+    planLabel: plan === 'longhaul' ? 'Long Haul'
+      : plan === 'committed' ? 'Committed'
+      : 'Flexible'
+  }
+}
+
+export const bedroomToSize: Record<string, number> = {
+  'Studio / Small apartment': 3,
+  '1 Bedroom': 4,
+  '2 Bedroom': 5,
+  '3 Bedroom': 6,
+  '4+ Bedroom': 7,
+}

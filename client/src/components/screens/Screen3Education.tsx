@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { Truck, Smartphone, Zap, Home, RotateCcw, Globe } from "lucide-react";
@@ -50,10 +50,12 @@ export default function Screen3Education({ goTo }: Props) {
   const card3 = getCard3(state.situation, state.branch);
   const callout = getCallout(state.situation, state.branch);
 
+  const advance = useCallback(() => goTo('screen-4'), [goTo]);
+
   useEffect(() => {
-    const timer = setTimeout(() => goTo('screen-4'), 2400);
+    const timer = setTimeout(advance, 2200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [advance]);
 
   const cards = [
     { icon: Truck, title: 'We come to you', desc: "Our team arrives, wraps your items, and loads everything. You don't lift a finger — or rent a truck." },
@@ -62,16 +64,7 @@ export default function Screen3Education({ goTo }: Props) {
   ];
 
   return (
-    <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
-      <div className="w-full h-1 bg-grey-light rounded-full overflow-hidden mb-6">
-        <motion.div
-          className="h-full bg-teal-mid"
-          initial={{ width: '0%' }}
-          animate={{ width: '100%' }}
-          transition={{ duration: 1.2, ease: 'linear' }}
-        />
-      </div>
-
+    <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8" onClick={advance}>
       <div className="flex-1">
         <motion.h1
           initial={{ opacity: 0, y: 8 }}
@@ -91,7 +84,7 @@ export default function Screen3Education({ goTo }: Props) {
                 key={i}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: i * 0.3 }}
+                transition={{ duration: 0.35, delay: 0.3 + i * 0.4 }}
                 className="flex gap-4 p-4 bg-mist rounded-2xl"
                 data-testid={`card-education-${i}`}
               >
@@ -118,6 +111,16 @@ export default function Screen3Education({ goTo }: Props) {
         </motion.div>
       </div>
 
+      <div className="mt-6">
+        <div className="w-full h-[3px] bg-grey-light rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-teal rounded-full"
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 2.2, ease: 'linear' }}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 }

@@ -1,0 +1,476 @@
+Got it — the outcome/pricing screen should function as a **personalized quote card** that summarizes exactly what they're getting, not just a price. Let me now write the full updated Replit prompt.
+
+---
+
+**Replit Update Prompt: Moving Flow Rebuild + Screen 1/2 Split**
+
+---
+
+> This is an update to the existing Clutter sign-up flow prototype. Apply the following changes precisely. Do not rebuild screens that aren't mentioned — only modify what's specified below.
+>
+> ---
+>
+> ## CHANGE 1 — Split Screen 1 into Two Screens
+>
+> ### New Screen 1 — Zip Code Only
+>
+> Remove the intent cards from Screen 1 entirely. This screen does one thing only.
+>
+> h1: `Storage that comes <em>to you.</em>`
+> Subtitle: "Enter your zip code to get started."
+>
+> - Large centered zip input (28px, letter-spacing 0.2em, 5-char max, numeric only)
+> - "Check Availability" button — disabled until 5 valid digits entered
+> - On valid zip: button activates, tapping advances to new Screen 2
+> - Trust row below button (Lucide icons, no emojis): Lock "Secure" | Star "4.8 rating" | Check "Free to reserve"
+>
+> ---
+>
+> ### New Screen 2 — Service Intent
+>
+> This replaces the old intent cards that lived on Screen 1. The copy is completely rewritten — old copy ("Returning to same address / Moving to a new address") was confusing. New copy maps to customer intent language.
+>
+> h1: `What do you <em>need help with?</em>`
+> Subtitle: "We'll build the right plan for your situation."
+>
+> Three large selectable cards, stacked, full width. Each has a Lucide icon (teal icon box, rounded), bold title, and descriptor line:
+>
+> **Card 1 — Storage**
+> Icon: Warehouse (or Archive)
+> Title: "Storage"
+> Descriptor: "Pick up my items, store them securely, and bring them back when I need them."
+> → Sets `state.branch = 'A'`, routes to Situation screen (existing Screen 2)
+>
+> **Card 2 — Storage + Moving**
+> Icon: ArrowRightLeft
+> Title: "Storage + Moving"
+> Descriptor: "Pick up from my current place, store my items, then deliver to my new address when I'm ready."
+> → Sets `state.branch = 'B1'`, routes to Moving Flow (new screens below)
+>
+> **Card 3 — Move Only**
+> Icon: Truck
+> Title: "Move Only"
+> Descriptor: "Get my items from point A to point B — no storage needed."
+> → Sets `state.branch = 'B2'` or `'B4'` (determined later by distance), routes to Moving Flow
+>
+> CTA: "Continue" — enabled only after a card is selected
+>
+> ---
+>
+> ## CHANGE 2 — Education Interstitials: Remove Buttons, Add Auto-Advance
+>
+> Update ALL education/interstitial screens (Screen 3 and any branch-specific interstitials) as follows:
+>
+> - **Remove the CTA button entirely**
+> - Add a thin teal progress bar at the bottom of the screen (not the top nav progress bar — a separate one, full width of the content area, 3px height, rounded)
+> - This bar fills from 0% → 100% over **2200ms** using a CSS transition on mount
+> - The three education cards still stagger-animate in (300ms / 700ms / 1100ms delays)
+> - At **2200ms** (when the loading bar completes), the screen **automatically advances** to the next screen using the same Framer Motion exit transition as a normal navigation tap
+> - No user input required. No button. The screen plays and moves on.
+> - If the user taps anywhere on the screen during playback, it advances immediately (treat as impatient skip)
+>
+> This makes the interstitial feel like an intelligent loading state — "we're calculating your plan" — not a static information wall.
+>
+> ---
+>
+> ## CHANGE 3 — Full Moving Flow Rebuild
+>
+> The moving flow (Branches B1, B2/B4) gets entirely new screens. Build these as new screen components and wire them into the FlowController routing.
+>
+> The moving flow applies to both:
+> - **Branch B1** — Storage + Moving (Clutter or Clutter + Flex depending on duration)
+> - **Branch B2/B4** — Move Only (Flex if under 1 month or long distance, Clutter if local + longer)
+>
+> ---
+>
+> ### Moving Screen 1 — Pickup + Delivery Dates
+>
+> h1: `When do you need <em>to move?</em>`
+> Subtitle: "Your pickup and delivery dates help us find the right plan."
+>
+> Two date inputs, stacked:
+>
+> **Pickup date:**
+> Label: "PICKUP DATE"
+> Calendar date picker — same availability simulation as the storage flow (past/unavailable/limited/available states). Pre-fill to today + 7 days.
+>
+> **Delivery date:**
+> Label: "DELIVERY DATE — when should we deliver to your new place?"
+> Calendar date picker — only dates after the selected pickup date are tappable. Pre-fill to pickup date + 30 days.
+> Below the delivery date picker, show a "Not sure yet" checkbox/toggle.
+> - If "Not sure yet" is checked: delivery date input greys out, `state.deliveryDate = null`, `state.storageUnknown = true`. The system defaults to Clutter routing and the customer can set delivery date from their account portal post-booking.
+>
+> **Duration indicator** — appears as soon as both dates are selected (or "Not sure yet" is checked):
+> A teal callout box that dynamically calculates and displays:
+> ```
+> [Calendar icon]  Estimated storage duration: [X weeks / X months]
+> ```
+> - If duration < 30 days: callout text adds — "For short-term moves, our partner Flex may be the best fit. We'll confirm on the next screen."
+> - If duration >= 30 days OR "Not sure yet": callout text adds — "Great — Clutter's committed storage plans are perfect for this timeline."
+>
+> This is the only hint the customer gets about routing. They never see "you're being sent to Flex."
+>
+> **Routing logic** (set silently in state):
+> ```ts
+> const durationDays = deliveryDate
+>   ? Math.floor((deliveryDate - pickupDate) / 86400000)
+>   : 999 // unknown = treat as long term
+>
+> if (durationDays < 30) {
+>   state.movingRoute = 'flex'
+> } else {
+>   state.movingRoute = 'clutter'
+> }
+> ```
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ### Moving Screen 2 — How Much Stuff?
+>
+> *(Language change from storage flow — "How much stuff" not "How much space")*
+>
+> h1: `How much stuff <em>do you have?</em>`
+> Subtitle: "This helps us send the right team and equipment."
+>
+> Five selectable cards, stacked (not a grid — moving customers think in rooms, not square footage):
+>
+> - Studio / Small apartment — "A few rooms, mostly boxes"
+> - 1 Bedroom — "One bedroom, living room, kitchen"
+> - 2 Bedroom — "Two bedrooms, common areas"
+> - 3 Bedroom — "Three bedrooms, full household"
+> - 4+ Bedroom — "Large home, substantial volume"
+>
+> Each card: bold room label + grey descriptor. No dimensions shown — this is moving language, not storage language.
+>
+> Selecting a card sets `state.selectedBedrooms` and maps to `state.sizeIdx` via `bedroomToSize` for pricing calculation.
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ### Moving Screen 3 — Service Tier ("How do you want us to pick up?")
+>
+> h1: `How do you want us <em>to pick up?</em>`
+> Subtitle: "Choose the level of service that works for you."
+>
+> Three cards — same tier structure as storage flow but with moving-specific copy:
+>
+> **White Glove** (Star icon, "Most Popular" teal badge)
+> Title: "Full service — we handle everything"
+> Body: "Our team arrives, wraps every item, loads the truck, and handles all the heavy lifting. You just point."
+> Price: shown as "from $[calculated]/mo" — updates based on size selection
+> Features (CheckCircle icons):
+> - Professional movers and equipment
+> - Full wrapping and padding of all items
+> - Loading and transport handled end to end
+>
+> **Pre-Packed** (Package icon)
+> Title: "You pack, we load"
+> Body: "You've already boxed everything up. Our team loads, transports, and stores."
+> Price: ~10% less than White Glove
+> Features:
+> - You prepare the boxes, we handle the rest
+> - Saves time on pickup day
+> - Same secure transport and storage
+>
+> **You Load, We Move** (yellow Flex border)
+> Title: "You load the trailer"
+> Body: "A Flex trailer drops at your door. Load on your schedule — Flex picks it up and delivers to our facility."
+> Price: ~20% less, strikethrough of White Glove price
+> Features (yellow check icons):
+> - GPS-tracked climate-controlled trailer
+> - No crew needed — load when it suits you
+> - Flex collects and delivers to Clutter storage
+> Footer: Flex logo (yellow square + "flex" DM Sans 300)
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ### Moving Screen 4 — Education Interstitial (Auto-Advance)
+>
+> Follows the same auto-advance pattern defined in CHANGE 2 above.
+>
+> This screen plays while the system "calculates" their quote in the background (simulated — just a timed delay).
+>
+> h1 variants:
+> - Clutter route: `Your plan is <em>coming together.</em>`
+> - Flex route: `Finding your <em>best option.</em>`
+>
+> Three stagger-animated cards:
+>
+> **Clutter route cards:**
+> - Box icon | **Secure storage** — "Climate-controlled, monitored facilities. Your items are safe."
+> - Smartphone icon | **Digital inventory** — "Every item photographed and catalogued. Access your inventory from your phone."
+> - Truck icon | **Professional movers** — "The same team handles pickup, storage, and final delivery. One relationship, start to finish."
+>
+> **Flex route cards:**
+> - MapPin icon | **GPS-tracked trailers** — "Every trailer is tracked in real time so you always know where your items are."
+> - Shield icon | **Climate controlled** — "Solar-powered ventilation and temperature monitoring protect your items in transit."
+> - Users icon | **Professional drivers** — "Flex's vetted gig-economy driver network means flexible scheduling and reliable service."
+>
+> Auto-advances at 2200ms (or on tap) to the Outcome screen.
+>
+> ---
+>
+> ### Moving Screen 5 — Outcome / Personalized Quote
+>
+> This is the most important screen in the moving flow. It functions as a personalized quote card — not just a price, but a full summary of exactly what the customer is getting based on every input they've made.
+>
+> The screen branches based on `state.movingRoute`:
+>
+> ---
+>
+> #### Outcome A — Clutter Route (duration >= 30 days or unknown)
+>
+> h1: `Here's your <em>personalized plan.</em>`
+> Subtitle: "Based on your dates, volume, and service preferences."
+>
+> **Large quote card** (white, rounded-2xl, shadow-md, teal left border accent 4px):
+>
+> Top section — "Your Move + Storage Plan":
+> - Pickup date: [formatted date]
+> - Delivery date: [formatted date or "To be confirmed — set anytime in your portal"]
+> - Estimated storage duration: [X months]
+> - Volume: [bedroom label from Screen 2]
+> - Service: [White Glove / Pre-Packed / You Load]
+>
+> Divider
+>
+> **What's included** — this is the detailed services section:
+> Show as a checklist of included services, built dynamically from their selections:
+>
+> Always included:
+> - CheckCircle (teal) — **Secure, climate-controlled storage** — "Your items stored in a monitored Clutter facility"
+> - CheckCircle (teal) — **Digital inventory** — "Every item photographed, catalogued, and accessible from your phone"
+> - CheckCircle (teal) — **On-demand access** — "Request any item back between pickup and final delivery"
+> - CheckCircle (teal) — **Initial pickup** — [Included if committed/longhaul, or "$149" if flexible]
+> - CheckCircle (teal) — **Final delivery to new address** — [Included or "$149"]
+>
+> Added based on tier selection:
+> - If White Glove: CheckCircle — **Professional movers** — "Full wrapping, padding, and loading by our trained team"
+> - If White Glove: CheckCircle — **All materials included** — "Blankets, padding, and equipment provided"
+> - If Pre-Packed: CheckCircle — **Professional loading** — "Our team handles loading and transport"
+> - If You Load: CheckCircle (yellow) — **Flex trailer drop-off** — "GPS-tracked trailer delivered to your door"
+> - If You Load: CheckCircle (yellow) — **Flex pickup + delivery** — "Flex collects and delivers to Clutter facility"
+>
+> Added based on add-ons (if selected in previous screens — or show toggles here if not yet asked):
+> - If packing selected: CheckCircle — **Packing service** — "Boxes and wrapping materials included"
+> - If protection selected: CheckCircle — **Protection plan** — "Coverage up to $[amount]"
+> - If disposal selected: CheckCircle — **Disposal service** — "Unwanted items hauled away on pickup day"
+>
+> Divider
+>
+> **Pricing breakdown:**
+> ```
+> Storage ([X months] × $[monthly rate])    $[subtotal]
+> Initial pickup                             Included / $149
+> Final delivery                             Included / $149
+> [Service tier adjustment if applicable]   −$[X]
+> ─────────────────────────────────────────────────────
+> Estimated total                           $[total]
+> Monthly rate                              $[X]/mo
+> ```
+>
+> If duration is unknown ("Not sure yet"): show monthly rate only, no estimated total. Add note: "We'll calculate your full total once you confirm your delivery date."
+>
+> **Due today block** (teal bg, rounded-xl, below the card):
+> - "Due today" label
+> - "$0" DM Serif Display large white
+> - "Charges begin after your first pickup"
+>
+> Savings callout if committed/longhaul plan: "You're saving $[X]/mo vs. our flexible plan."
+>
+> CTA: "This looks right — reserve my spot"
+> Secondary link: "Adjust my plan" → routes back to Moving Screen 1
+>
+> ---
+>
+> #### Outcome B — Flex Route (duration < 30 days)
+>
+> h1: `Your move, <em>handled.</em>`
+> Subtitle: "For your timeline, our partner Flex is the perfect fit."
+>
+> **Flex handoff card** (white, rounded-2xl, shadow-md, yellow left border accent 4px):
+>
+> Flex logo centered at top of card (yellow square + "flex" wordmark)
+> "Powered by Clutter's trusted network" grey pill
+>
+> Top section — "Your Move Plan":
+> - Pickup date: [formatted]
+> - Delivery date: [formatted]
+> - Duration: [X days]
+> - Volume: [bedroom label]
+> - Service: [selected tier]
+>
+> Divider
+>
+> **What's included:**
+> - CheckCircle (yellow) — **GPS-tracked trailer** — "Real-time location tracking throughout your move"
+> - CheckCircle (yellow) — **Climate-controlled transport** — "Solar-powered ventilation and temperature monitoring"
+> - CheckCircle (yellow) — **Professional Flex driver** — "Vetted, experienced gig-economy driver"
+> - CheckCircle (yellow) — **Direct A-to-B delivery** — "Picked up from your door, delivered to your new address"
+> - If White Glove selected: CheckCircle (yellow) — **Loading crew** — "Professional team handles all loading"
+>
+> Divider
+>
+> **Pricing:**
+> ```
+> Move quote (based on volume + service)    $[flat estimate]
+> ─────────────────────────────────────────────────────
+> Estimated total                           $[total]
+> ```
+> Note: "A Flex specialist will confirm your exact quote within 24 hours."
+>
+> **Due today block** (yellow bg this time, rounded-xl):
+> - "$0 due today"
+> - "Flex will confirm your quote and collect payment at booking"
+>
+> **Option to switch to Clutter** — small teal link below the card:
+> "Actually, I might need longer storage — switch to Clutter"
+> Tapping this sets `state.movingRoute = 'clutter'` and re-renders the Outcome A card.
+>
+> CTA: "Connect me with Flex"
+> → Routes to lead capture screen (name, email, phone) then Flex confirmation screen
+>
+> ---
+>
+> ### Moving Lead Capture (both routes)
+>
+> Same as existing Screen 9 (Lead Capture) with two additions:
+>
+> 1. Pickup address field — "Where should we pick up?"
+> 2. Delivery address field — "Where are we delivering to?" (always shown in moving flow — both addresses needed)
+>
+> CTA: "Save my quote"
+>
+> ---
+>
+> ### Moving Confirmation Screen
+>
+> **Clutter route:**
+> Full teal success screen (same as existing ScreenSuccess):
+> - Animated SVG checkmark
+> - "You're all set, [firstName]."
+> - "We'll see you on [pickupDate]."
+> - "Your items will be delivered to your new place on [deliveryDate or 'a date you choose']."
+> - "clutter" wordmark centered bottom
+>
+> **Flex route:**
+> Full yellow-tinted success screen (bg: #FFFBF0, border top: 4px solid #F5A623):
+> - Animated checkmark (yellow stroke)
+> - Flex logo centered
+> - "You're connected."
+> - "A Flex specialist will call you at [phone] within 24 hours to confirm your quote and finalize your move."
+> - "Powered by Clutter's trusted network" pill
+>
+> ---
+>
+> ## CHANGE 4 — FlowController Routing Updates
+>
+> Update the FlowController to handle the new screen sequence for moving branches:
+>
+> ```
+> Branch B1 / B2 / B4 (any moving intent) now routes:
+>
+> Screen 1 (zip)
+> → Screen 2 (service intent — selects B1/B2/B4)
+> → Moving Screen 1 (pickup + delivery dates → sets movingRoute)
+> → Moving Screen 2 (how much stuff)
+> → Moving Screen 3 (service tier)
+> → Moving Screen 4 (education interstitial — auto-advance)
+> → Moving Screen 5 (outcome — Clutter or Flex based on movingRoute)
+> → Moving Lead Capture
+> → Moving Confirmation
+>
+> Branch A (storage only) routing unchanged — continues to existing
+> Screen 2 (situation) → Screen 3 (education) → etc.
+> ```
+>
+> ---
+>
+> ## CHANGE 5 — Pricing Calculation for Moving Flow
+>
+> Add this calculation to `lib/pricing.ts`:
+>
+> ```ts
+> export function getMovingQuote(
+>   sizeIdx: number,
+>   tier: Tier,
+>   durationDays: number | null,
+>   route: 'clutter' | 'flex'
+> ): {
+>   monthlyRate: number
+>   estimatedTotal: number | null
+>   pickupCost: number
+>   deliveryCost: number
+>   tierAdjustment: number
+>   planLabel: string
+> } {
+>   const p = pricing[sizeIdx]
+>   const mult = tierMultipliers[tier]
+>
+>   if (route === 'flex') {
+>     // Flat move quote — no monthly storage rate
+>     const baseFlexQuote = [299, 399, 499, 649, 799, 949, 1099, 1299][sizeIdx]
+>     const tierAdj = tier === 'prepacked' ? -50 : tier === 'youload' ? -100 : 0
+>     return {
+>       monthlyRate: 0,
+>       estimatedTotal: baseFlexQuote + tierAdj,
+>       pickupCost: 0,
+>       deliveryCost: 0,
+>       tierAdjustment: tierAdj,
+>       planLabel: 'Flex Move'
+>     }
+>   }
+>
+>   // Clutter route
+>   const months = durationDays ? Math.ceil(durationDays / 30) : null
+>   const plan = !months || months >= 8 ? 'longhaul'
+>              : months >= 4 ? 'committed'
+>              : 'flexible'
+>   const monthlyRate = Math.round(
+>     (plan === 'longhaul' ? p.eight : plan === 'committed' ? p.four : p.m2m) * mult
+>   )
+>   const pickupCost = plan === 'flexible' ? 149 : 0
+>   const deliveryCost = plan === 'flexible' ? 149 : 0
+>   const estimatedTotal = months
+>     ? monthlyRate * months + pickupCost + deliveryCost
+>     : null
+>
+>   return {
+>     monthlyRate,
+>     estimatedTotal,
+>     pickupCost,
+>     deliveryCost,
+>     tierAdjustment: 0,
+>     planLabel: plan === 'longhaul' ? 'Long Haul'
+>              : plan === 'committed' ? 'Committed'
+>              : 'Flexible'
+>   }
+> }
+> ```
+>
+> The Outcome screen calls `getMovingQuote(state.sizeIdx, state.tier, durationDays, state.movingRoute)` and renders all values from the returned object dynamically.
+>
+> ---
+>
+> ## Summary of What Changes vs. What Stays the Same
+>
+> **Changes:**
+> - Screen 1: zip only (intent cards removed)
+> - Screen 2: new service intent screen with rewritten copy (Storage / Storage + Moving / Move Only)
+> - All education interstitials: buttons removed, auto-advance with loading bar added
+> - Entire moving flow: new screen sequence (dates → stuff → tier → interstitial → outcome)
+> - Outcome screen: full personalized quote card with detailed services checklist, dynamic pricing, and Clutter vs. Flex branching
+>
+> **Unchanged:**
+> - Storage-only flow (Branch A) — all existing screens from Screen 2 (situation) onward
+> - Design system, colors, typography, Tailwind config
+> - FlowContext and state structure (only additions — no removals)
+> - Pricing table and tier multipliers
+> - Success screen design (reused for Clutter confirmation)
+> - Add-ons screen
+> - Review + Book screen (used for Clutter moving route)

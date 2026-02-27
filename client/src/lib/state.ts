@@ -6,10 +6,11 @@ export type Tier = 'whiteglove' | 'prepacked' | 'youload'
 export type Plan = 'committed' | 'longhaul' | 'flexible'
 export type ArrivalType = 'flexible' | 'scheduled'
 export type SizeMethod = 'quick' | 'advisor'
+export type MovingRoute = 'clutter' | 'flex'
 
 export interface FlowState {
   zip: string
-  intent: 'storage' | 'moving' | null
+  intent: 'storage' | 'moving' | 'moveonly' | null
   needsStorage: boolean | null
   moveDistance: 'local' | 'longdistance' | null
   branch: Branch | null
@@ -22,6 +23,9 @@ export interface FlowState {
   plan: Plan
   tier: Tier
   pickupDate: Date | null
+  deliveryDate: Date | null
+  storageUnknown: boolean
+  movingRoute: MovingRoute | null
   arrivalType: ArrivalType
   arrivalWindow: string
   firstName: string
@@ -54,6 +58,9 @@ export const defaultState: FlowState = {
   plan: 'committed',
   tier: 'whiteglove',
   pickupDate: null,
+  deliveryDate: null,
+  storageUnknown: false,
+  movingRoute: null,
   arrivalType: 'flexible',
   arrivalWindow: '',
   firstName: '',
