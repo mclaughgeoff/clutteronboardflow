@@ -29,16 +29,11 @@ export default function Screen10Review({ goTo }: Props) {
   const labor = getLaborCost(state.tier, state.plan);
 
   let total = monthlyPrice;
-  let packingCost = 0;
   let protectionCost = 0;
   let scheduledCost = state.arrivalType === 'scheduled' ? 29 : 0;
   let pickupFee = labor.pickup;
   let deliveryFee = labor.delivery;
 
-  if (state.addons.packing) {
-    packingCost = state.addons.packing === '1-10' ? 15 : state.addons.packing === '15-25' ? 25 : 35;
-    total += packingCost;
-  }
   if (state.addons.protection) {
     protectionCost = state.addons.protection === 'standard' ? 15 : 50;
     total += protectionCost;
@@ -90,7 +85,6 @@ export default function Screen10Review({ goTo }: Props) {
               {pickupFee > 0 && <div className="flex justify-between"><span className="text-grey">Initial pickup</span><span className="text-charcoal">${pickupFee}</span></div>}
               {deliveryFee > 0 && <div className="flex justify-between"><span className="text-grey">Final delivery</span><span className="text-charcoal">${deliveryFee}</span></div>}
               {scheduledCost > 0 && <div className="flex justify-between"><span className="text-grey">Scheduled arrival</span><span className="text-charcoal">${scheduledCost}</span></div>}
-              {packingCost > 0 && <div className="flex justify-between"><span className="text-grey">Packing service</span><span className="text-charcoal">+${packingCost}/mo</span></div>}
               {protectionCost > 0 && <div className="flex justify-between"><span className="text-grey">Protection plan</span><span className="text-charcoal">+${protectionCost}/mo</span></div>}
               <div className="border-t border-grey-light pt-1.5 flex justify-between font-semibold">
                 <span className="text-charcoal">Total</span>
