@@ -23,32 +23,32 @@ const options: {
     key: 'never',
     icon: Archive,
     title: 'Probably never',
-    desc: "I'm storing and leaving it — I'll retrieve everything at the end",
+    desc: "I'll retrieve everything at the end — no visits in between",
   },
   {
     key: 'onceTwice',
     icon: RefreshCw,
     title: 'Once or twice',
-    desc: 'Maybe retrieve something, or drop off a box',
+    desc: 'Maybe get one thing back, or drop something off',
   },
   {
     key: 'fewTimes',
     icon: Repeat,
     title: 'A few times',
-    desc: "I'll be going back and forth a bit — 2 to 4 visits",
+    desc: "I'll need a few things back over time — 2 to 4 visits",
   },
   {
     key: 'frequently',
     icon: Zap,
     title: 'Frequently',
-    desc: "I'll be actively using my storage — 5 or more visits",
+    desc: "I'll regularly be adding or retrieving items — 5 or more visits",
   },
 ];
 
 function getCallout(freq: SubjobFreq, plan: string): { text: string; tone: 'teal' | 'amber' | 'grey'; showSwitch?: boolean } | null {
   if (freq === 'never') {
     return {
-      text: "Since you won't use your included sub-jobs, we'll take 15% off your monthly storage rate.",
+      text: "Since you won't need any extra visits, we'll take 15% off your monthly storage rate.",
       tone: 'teal',
     };
   }
@@ -57,7 +57,7 @@ function getCallout(freq: SubjobFreq, plan: string): { text: string; tone: 'teal
   if (freq === 'fewTimes') {
     if (plan === 'committed') {
       return {
-        text: "At this frequency, your plan will be adjusted +10%/mo. Long Haul includes this at no extra cost.",
+        text: "At this frequency, your plan will be adjusted +10%/mo. On the Long Haul plan, this many visits are already included at no extra cost.",
         tone: 'amber',
         showSwitch: true,
       };
@@ -71,7 +71,7 @@ function getCallout(freq: SubjobFreq, plan: string): { text: string; tone: 'teal
   if (freq === 'frequently') {
     if (plan === 'committed') {
       return {
-        text: "High usage adds 15%/mo to your plan. On Long Haul, it's only +5% — and you get 4 sub-jobs included.",
+        text: "High usage adds 15%/mo to your plan. On Long Haul, it's only +5% — and you get 4 return visits included.",
         tone: 'amber',
         showSwitch: true,
       };
@@ -111,18 +111,19 @@ export default function Screen5CSubjobs({ goTo }: Props) {
     <motion.div {...screenAnim} className="flex-1 flex flex-col px-6 pb-8">
       <div className="flex-1">
         <h1 className="font-serif text-[28px] leading-[1.15] text-charcoal mb-2" data-testid="text-headline">
-          How often will you need <span className="text-teal font-semibold">to swap things out?</span>
+          How often will you need{' '}
+          <span className="text-teal"><em>something back?</em></span>
         </h1>
         <p className="text-grey text-[15px] mb-4" data-testid="text-subtitle">
-          A sub-job is any time we make an extra visit — returning an item, picking up something new, or swapping things out.
+          After your items are in storage, you can ask us to return specific things, drop off new items, or swap things out — any time you need.
         </p>
 
         <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-teal-light border border-teal/10 mb-6" data-testid="card-info-subjobs">
           <Info className="w-4 h-4 text-teal flex-shrink-0 mt-0.5" />
           <div className="text-sm text-teal leading-relaxed">
-            <p className="font-semibold mb-1">What's included in your plan:</p>
-            <p>Committed (3–7 mo): 1 sub-job included free</p>
-            <p>Long Haul (8mo+): 4 sub-jobs included free</p>
+            <p className="font-semibold mb-1">Extra visits included in your plan:</p>
+            <p>3 to 7 months:    1 free return or swap visit</p>
+            <p>8 months or more: 4 free return or swap visits</p>
           </div>
         </div>
 

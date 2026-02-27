@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { CheckCircle, MapPin, Truck, Thermometer, Sun } from "lucide-react";
+import AddressInput from "@/components/ui/AddressInput";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -72,20 +73,16 @@ export default function ScreenFlexHandoff({ goTo }: Props) {
         </div>
 
         <div className="space-y-3">
-          <input
-            type="text"
-            value={pickupAddress}
-            onChange={(e) => setPickupAddress(e.target.value)}
+          <AddressInput
             placeholder="Pickup address"
-            className={inputClass}
+            value={pickupAddress}
+            onChange={setPickupAddress}
             data-testid="input-flex-pickup"
           />
-          <input
-            type="text"
-            value={deliveryAddress}
-            onChange={(e) => setDeliveryAddress(e.target.value)}
+          <AddressInput
             placeholder="Drop-off address"
-            className={inputClass}
+            value={deliveryAddress}
+            onChange={setDeliveryAddress}
             data-testid="input-flex-delivery"
           />
 

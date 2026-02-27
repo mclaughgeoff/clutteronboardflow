@@ -11,6 +11,13 @@
     <meta name="description" content="Premium concierge storage. We pick up, store, and deliver your items on demand." />
     <meta property="og:title" content="Clutter — Storage That Comes to You" />
     <meta property="og:description" content="Premium concierge storage service. Our team picks up, photographs, and stores your items. Get anything back with a tap." />
+    <script>
+      // TODO: replace with production API key
+      function initGoogleMaps() {
+        window.dispatchEvent(new CustomEvent('google-maps-loaded'));
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDemo&libraries=places&callback=initGoogleMaps" async defer></script>
   </head>
   <body>
     <div id="root"></div>

@@ -159,6 +159,41 @@ export function getMovingQuote(
   }
 }
 
+export function getAvgMonthlyCost(
+  sizeIdx: number,
+  plan: Plan,
+  tier: Tier,
+  subjobFreq?: SubjobFreq | null
+): {
+  avgMonthly: number
+  firstMonth?: number
+  monthlyThereafter?: number
+  commitMonths: number
+  laborPickup: number
+  laborDelivery: number
+} {
+  const bd = getPlanBreakdown(sizeIdx, plan, tier, subjobFreq)
+
+  if (plan === 'flexible') {
+    const firstMonth = bd.adjustedBase + bd.labor.pickup + bd.labor.delivery
+    return {
+      avgMonthly: firstMonth,
+      firstMonth,
+      monthlyThereafter: bd.adjustedBase,
+      commitMonths: 1,
+      laborPickup: bd.labor.pickup,
+      laborDelivery: bd.labor.delivery,
+    }
+  }
+
+  return {
+    avgMonthly: bd.commitMonths > 0 ? Math.round(bd.periodTotal / bd.commitMonths) : bd.adjustedBase,
+    commitMonths: bd.commitMonths,
+    laborPickup: 0,
+    laborDelivery: 0,
+  }
+}
+
 export const bedroomToSize: Record<string, number> = {
   'Studio / Small apartment': 3,
   '1 Bedroom': 4,

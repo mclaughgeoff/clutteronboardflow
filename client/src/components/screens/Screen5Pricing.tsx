@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
-import { pricing, getBaseRate } from "@/lib/pricing";
+import { pricing } from "@/lib/pricing";
 import { CheckCircle, ChevronDown } from "lucide-react";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
@@ -42,7 +42,6 @@ export default function Screen5Pricing({ goTo }: Props) {
 
   function renderSizeCard(idx: number, isRecommended: boolean) {
     const size = pricing[idx];
-    const price = getBaseRate(idx, state.plan);
     const isSelected = selectedIdx === idx;
     const labels: Record<number, string> = { [below]: 'Tight fit', [recIdx]: '', [above]: 'Extra room' };
     const fitLabel = labels[idx] || '';
@@ -79,7 +78,6 @@ export default function Screen5Pricing({ goTo }: Props) {
           )}
         </div>
         <p className="text-sm text-grey mt-0.5">{size.friendly}</p>
-        <p className="text-teal font-semibold text-sm mt-2">From ${price}/mo</p>
         <p className="text-xs text-grey mt-1">{sizeDescriptions[idx]}</p>
       </button>
     );

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
-import { pricing, getBaseRate, getLaborCost, laborFees, getPlanBreakdown } from "@/lib/pricing";
+import { laborFees, getPlanBreakdown, getAvgMonthlyCost } from "@/lib/pricing";
 import type { Plan } from "@/lib/state";
 import { CheckCircle, Circle, ArrowDown, ChevronDown } from "lucide-react";
 
@@ -18,7 +18,7 @@ function subjobLabel(freq: string | null, plan: Plan): { text: string; pct: stri
   if (!freq || freq === 'onceTwice' || plan === 'flexible') return null;
 
   if (freq === 'never') {
-    return { text: 'Sub-job discount', pct: '−15%/mo', tone: 'teal' };
+    return { text: 'No-visit discount', pct: '−15%/mo', tone: 'teal' };
   }
   if (freq === 'fewTimes' && plan === 'committed') {
     return { text: 'High-frequency adjustment', pct: '+10%/mo', tone: 'amber' };
@@ -81,6 +81,7 @@ export default function Screen7Pricing({ goTo }: Props) {
 
   function renderCommitted() {
     const bd = getPlanBreakdown(state.sizeIdx, 'committed', state.tier, state.subjobFreq);
+    const avg = getAvgMonthlyCost(state.sizeIdx, 'committed', state.tier, state.subjobFreq);
     const isSelected = selected === 'committed';
     const hasSubjobAdj = subjobLabel(state.subjobFreq, 'committed') !== null;
     const displayRate = hasSubjobAdj ? bd.base : bd.adjustedBase;
@@ -113,8 +114,16 @@ export default function Screen7Pricing({ goTo }: Props) {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-grey">Initial pickup</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />Included</span></div>
             <div className="flex justify-between"><span className="text-grey">Final delivery</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />Included</span></div>
-            <div className="flex justify-between"><span className="text-grey">Sub-jobs</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />1 included</span></div>
+            <div className="flex justify-between"><span className="text-grey">Return visits</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />1 included</span></div>
           </div>
+        </div>
+
+        <div className="bg-mist rounded-xl p-3 mb-3">
+          <div className="flex justify-between items-baseline">
+            <span className="text-sm text-grey">Avg monthly cost ({avg.commitMonths} months)</span>
+            <span className="font-serif text-xl text-charcoal font-bold">${avg.avgMonthly}<span className="text-sm font-sans font-medium text-grey">/mo</span></span>
+          </div>
+          <p className="text-[11px] text-teal mt-1">Pickup &amp; delivery included</p>
         </div>
 
         <div className="bg-mist rounded-xl p-3 mb-2">
@@ -131,6 +140,7 @@ export default function Screen7Pricing({ goTo }: Props) {
 
   function renderLongHaul() {
     const bd = getPlanBreakdown(state.sizeIdx, 'longhaul', state.tier, state.subjobFreq);
+    const avg = getAvgMonthlyCost(state.sizeIdx, 'longhaul', state.tier, state.subjobFreq);
     const isSelected = selected === 'longhaul';
     const hasSubjobAdj = subjobLabel(state.subjobFreq, 'longhaul') !== null;
     const displayRate = hasSubjobAdj ? bd.base : bd.adjustedBase;
@@ -162,8 +172,16 @@ export default function Screen7Pricing({ goTo }: Props) {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-grey">Initial pickup</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />Included</span></div>
             <div className="flex justify-between"><span className="text-grey">Final delivery</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />Included</span></div>
-            <div className="flex justify-between"><span className="text-grey">Sub-jobs</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />4 included</span></div>
+            <div className="flex justify-between"><span className="text-grey">Return visits</span><span className="text-teal font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />4 included</span></div>
           </div>
+        </div>
+
+        <div className="bg-mist rounded-xl p-3 mb-3">
+          <div className="flex justify-between items-baseline">
+            <span className="text-sm text-grey">Avg monthly cost ({avg.commitMonths} months)</span>
+            <span className="font-serif text-xl text-charcoal font-bold">${avg.avgMonthly}<span className="text-sm font-sans font-medium text-grey">/mo</span></span>
+          </div>
+          <p className="text-[11px] text-teal mt-1">Pickup, delivery &amp; 4 return visits included</p>
         </div>
 
         <div className="bg-mist rounded-xl p-3 mb-2">
@@ -179,6 +197,7 @@ export default function Screen7Pricing({ goTo }: Props) {
 
   function renderFlexible() {
     const bd = getPlanBreakdown(state.sizeIdx, 'flexible', state.tier);
+    const avg = getAvgMonthlyCost(state.sizeIdx, 'flexible', state.tier);
     const isSelected = selected === 'flexible';
 
     return (
@@ -203,14 +222,20 @@ export default function Screen7Pricing({ goTo }: Props) {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-grey">Initial pickup</span><span className="text-charcoal font-medium">${bd.labor.pickup}</span></div>
             <div className="flex justify-between"><span className="text-grey">Final delivery</span><span className="text-charcoal font-medium">${bd.labor.delivery}</span></div>
-            <div className="flex justify-between"><span className="text-grey">Sub-jobs</span><span className="text-grey flex items-center gap-1"><Circle className="w-3.5 h-3.5" />$49 each</span></div>
+            <div className="flex justify-between"><span className="text-grey">Return visits</span><span className="text-grey flex items-center gap-1"><Circle className="w-3.5 h-3.5" />$49 each</span></div>
           </div>
         </div>
 
         <div className="bg-mist rounded-xl p-3">
-          <div className="flex justify-between text-sm"><span className="text-grey">First month total</span><span className="text-charcoal font-bold">${bd.periodTotal}</span></div>
-          <div className="flex justify-between text-sm mt-1"><span className="text-grey">Monthly thereafter</span><span className="text-charcoal font-medium">${bd.adjustedBase}/mo</span></div>
-          <p className="text-[11px] text-grey mt-2 leading-relaxed">Pickup and delivery are one-time charges — this is a premium service, not a self-storage unit.</p>
+          <div className="flex justify-between items-baseline">
+            <span className="text-sm text-grey">First month total</span>
+            <span className="font-serif text-xl text-charcoal font-bold">${avg.firstMonth}</span>
+          </div>
+          <div className="flex justify-between text-sm mt-1">
+            <span className="text-grey">Monthly thereafter</span>
+            <span className="text-charcoal font-medium">${avg.monthlyThereafter}/mo</span>
+          </div>
+          <p className="text-[11px] text-grey mt-1">Pickup ${avg.laborPickup} + delivery ${avg.laborDelivery} charged once</p>
         </div>
       </button>
     );
@@ -307,7 +332,7 @@ export default function Screen7Pricing({ goTo }: Props) {
                       <td className="py-2 px-2 text-center text-charcoal">${flexibleBd.labor.delivery}</td>
                     </tr>
                     <tr className="border-b border-grey-light/50">
-                      <td className="py-2 pr-2 text-grey">Sub-jobs</td>
+                      <td className="py-2 pr-2 text-grey">Return visits</td>
                       <td className="py-2 px-2 text-center text-teal font-medium">1 free</td>
                       <td className="py-2 px-2 text-center text-teal font-medium">4 free</td>
                       <td className="py-2 px-2 text-center text-charcoal">$49 ea</td>

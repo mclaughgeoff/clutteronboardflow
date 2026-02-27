@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useFlowState, type Tier } from "@/lib/state";
 import { Star, Package, Truck, CheckCircle } from "lucide-react";
-import { getBaseRate } from "@/lib/pricing";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -17,18 +16,13 @@ export default function MovingScreen3Tier({ goTo }: Props) {
   const { state, setState } = useFlowState();
   const [tier, setTier] = useState<Tier>(state.tier);
 
-  const whiteGlovePrice = getBaseRate(state.sizeIdx, state.plan);
-  const prepackedPrice = Math.round(whiteGlovePrice * 0.9);
-  const youloadPrice = Math.round(whiteGlovePrice * 0.8);
-
   const tiers: {
     key: Tier;
     icon: typeof Star;
     badge?: string;
+    savingsLabel?: string;
     title: string;
     body: string;
-    price: number;
-    strikePrice?: number;
     features: { text: string; yellow?: boolean }[];
     flex?: boolean;
   }[] = [
@@ -38,7 +32,6 @@ export default function MovingScreen3Tier({ goTo }: Props) {
       badge: 'Most Popular',
       title: 'Full service — we handle everything',
       body: "Our team arrives, wraps every item, loads the truck, and handles all the heavy lifting. You just point.",
-      price: whiteGlovePrice,
       features: [
         { text: 'Professional movers and equipment' },
         { text: 'Full wrapping and padding of all items' },
@@ -48,9 +41,9 @@ export default function MovingScreen3Tier({ goTo }: Props) {
     {
       key: 'prepacked',
       icon: Package,
+      savingsLabel: 'Save ~10%',
       title: 'You pack, we load',
       body: "You've already boxed everything up. Our team loads, transports, and stores.",
-      price: prepackedPrice,
       features: [
         { text: 'You prepare the boxes, we handle the rest' },
         { text: 'Saves time on pickup day' },
@@ -60,10 +53,9 @@ export default function MovingScreen3Tier({ goTo }: Props) {
     {
       key: 'youload',
       icon: Truck,
+      savingsLabel: 'Save ~20%',
       title: 'You load the trailer',
       body: "A Flex trailer drops at your door. Load on your schedule — Flex picks it up and delivers to our facility.",
-      price: youloadPrice,
-      strikePrice: whiteGlovePrice,
       flex: true,
       features: [
         { text: 'GPS-tracked climate-controlled trailer', yellow: true },
@@ -115,19 +107,16 @@ export default function MovingScreen3Tier({ goTo }: Props) {
                       <Icon className="w-4.5 h-4.5" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-charcoal text-[15px]">{t.title}</span>
                         {t.badge && (
                           <span className="text-[10px] font-semibold bg-teal text-white px-2 py-0.5 rounded-full">{t.badge}</span>
                         )}
-                      </div>
-                      <p className="text-grey text-sm mt-1 leading-relaxed">{t.body}</p>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-lg font-bold text-charcoal">from ${t.price}/mo</span>
-                        {t.strikePrice && (
-                          <span className="text-sm text-grey line-through">${t.strikePrice}/mo</span>
+                        {t.savingsLabel && (
+                          <span className="text-xs text-grey bg-grey-light px-2 py-0.5 rounded-full">{t.savingsLabel}</span>
                         )}
                       </div>
+                      <p className="text-grey text-sm mt-1 leading-relaxed">{t.body}</p>
                     </div>
                   </div>
 

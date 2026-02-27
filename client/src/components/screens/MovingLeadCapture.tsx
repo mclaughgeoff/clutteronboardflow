@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { Lock, Star, CheckCircle } from "lucide-react";
+import AddressInput from "@/components/ui/AddressInput";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -75,20 +76,16 @@ export default function MovingLeadCapture({ goTo }: Props) {
             className={inputClass}
             data-testid="input-phone"
           />
-          <input
-            type="text"
-            value={pickupAddress}
-            onChange={(e) => setPickupAddress(e.target.value)}
+          <AddressInput
             placeholder="Where should we pick up?"
-            className={inputClass}
+            value={pickupAddress}
+            onChange={setPickupAddress}
             data-testid="input-pickup-address"
           />
-          <input
-            type="text"
-            value={deliveryAddress}
-            onChange={(e) => setDeliveryAddress(e.target.value)}
+          <AddressInput
             placeholder="Where are we delivering to?"
-            className={inputClass}
+            value={deliveryAddress}
+            onChange={setDeliveryAddress}
             data-testid="input-delivery-address"
           />
         </div>

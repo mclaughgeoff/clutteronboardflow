@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlowState } from "@/lib/state";
 import { Lock, Star, CheckCircle } from "lucide-react";
+import AddressInput from "@/components/ui/AddressInput";
 
 interface Props { goTo: (s: string) => void; goBack: () => void; }
 
@@ -82,12 +83,10 @@ export default function Screen8Lead({ goTo }: Props) {
             className={inputClass}
             data-testid="input-phone"
           />
-          <input
-            type="text"
-            value={pickupAddress}
-            onChange={(e) => setPickupAddress(e.target.value)}
+          <AddressInput
             placeholder="Pickup address"
-            className={inputClass}
+            value={pickupAddress}
+            onChange={setPickupAddress}
             data-testid="input-pickup-address"
           />
 
@@ -99,12 +98,10 @@ export default function Screen8Lead({ goTo }: Props) {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <input
-                  type="text"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                <AddressInput
                   placeholder="Delivery address"
-                  className={inputClass}
+                  value={deliveryAddress}
+                  onChange={setDeliveryAddress}
                   data-testid="input-delivery-address"
                 />
                 {isB3 && (

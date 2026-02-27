@@ -27,7 +27,7 @@ import MovingLeadCapture from "@/components/screens/MovingLeadCapture";
 import MovingSuccess from "@/components/screens/MovingSuccess";
 
 const branchAScreens = [
-  'screen-1', 'screen-2', 'screen-3', 'screen-4', 'screen-advisor', 'screen-5',
+  'screen-1', 'screen-2', 'screen-3', 'screen-4', 'screen-5',
   'screen-5b', 'screen-5c', 'screen-6', 'screen-7', 'screen-date', 'screen-lead',
   'screen-addons', 'screen-review', 'screen-success'
 ];

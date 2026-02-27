@@ -209,9 +209,29 @@ export default function MovingScreen5Outcome({ goTo }: Props) {
                 <p className="font-serif text-[48px] leading-none text-charcoal" data-testid="text-total-cost">
                   ${totalCost.toLocaleString()}
                 </p>
-                <p className="text-sm text-grey mt-2 leading-relaxed">
-                  Covers everything from pickup to final delivery — {months} month{months! > 1 ? 's' : ''} of secure storage, all included.
-                </p>
+                <div className="mt-3 space-y-2" data-testid="breakdown-summary">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-teal flex-shrink-0" />
+                      <span className="text-sm text-charcoal">Pickup from your current address</span>
+                    </div>
+                    <span className="text-sm font-medium text-teal flex-shrink-0">Included</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-teal flex-shrink-0" />
+                      <span className="text-sm text-charcoal">{months} month{months! > 1 ? 's' : ''} secure storage at Clutter facility</span>
+                    </div>
+                    <span className="text-sm font-medium text-teal flex-shrink-0">Included</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-teal flex-shrink-0" />
+                      <span className="text-sm text-charcoal">Final delivery to your new address</span>
+                    </div>
+                    <span className="text-sm font-medium text-teal flex-shrink-0">Included</span>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="mb-4">
