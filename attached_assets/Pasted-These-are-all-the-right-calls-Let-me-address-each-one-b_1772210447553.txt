@@ -1,0 +1,885 @@
+These are all the right calls. Let me address each one before rewriting the prompt:
+
+---
+
+**On #1 — Education as loading screens:**
+This is brilliant UX. Instead of the user waiting while "availability is being checked" or "your plan is being calculated," the education screen *is* the wait. It feels purposeful, not like a spinner. The animation plays, the content lands, and by the time it fades out the next screen is ready. No dead time, no impatient back-tapping.
+
+**On #3 — Elevated design:**
+Looking at the screenshots, Clutter's current design language is actually quite strong — DM Serif Display headlines, clean teal, lots of white space, confident typography. The opportunity is to push it toward what Airbnb or Linear feels like: more negative space, tighter type scale, subtle micro-interactions, no visual clutter (ironic given the brand name).
+
+**On #4 — Next.js / React + Tailwind:**
+Right call for a production-ready prototype. Component architecture means each screen is its own file, state is managed properly with useState/useContext, and it's actually deployable. Replit handles Next.js projects well.
+
+**On #6 — "Help me pick a size" prominence:**
+The screenshot shows exactly the right tension. The current Clutter flow buries it as a secondary CTA in the top right corner — it's there for users who want it but doesn't interrupt the main path. The insight that these users convert at a higher rate is significant and changes how we should weight it. Here's my thinking:
+
+The reason high-intent users engage with size guidance is that it **reduces decision anxiety** — they don't want to pick wrong and feel like they wasted money or ran out of space. If we can give that same anxiety reduction to *every* user without forcing them through an extra step, we get the conversion benefit without the friction cost.
+
+The solution is a **dual-path size screen** that presents both options with equal visual weight but different interaction models:
+
+```
+"How much space do you need?"
+
+[Quick select]          [Help me decide]
+──────────────          ────────────────
+Studio                  Answer 3 quick
+1 Bedroom               questions and we'll
+2 Bedroom               recommend the right
+3 Bedroom               size for you
+4+ Bedroom
+```
+
+The left column is the fast path — bedroom count, one tap, done. The right is the advisor path — item checklist (the existing Screen 4 logic) presented as a mini quiz that slides in inline. Both paths land on the same size confirmation screen. Neither feels like the "wrong" choice.
+
+This also means we can **remove the separate item checklist screen** (current Screen 4) from the main flow entirely — it becomes the content of the "Help me decide" path, not a mandatory step everyone goes through. The main flow gets one screen shorter. The advisor path gets more prominent placement. Everyone wins.
+
+The item search bar in the screenshot (searching from a library, quick-add chips for Bed/Mattress/Sofa etc.) is actually a great pattern for the advisor path — more granular than category cards, more fun to interact with, and produces a more accurate size recommendation. Worth incorporating.
+
+---
+
+Here's the fully revised prompt:
+
+---
+
+**Replit Prompt: Clutter Concierge Storage — Production-Ready Sign-Up Flow**
+
+---
+
+> Build a fully interactive, production-ready sign-up flow for **Clutter** — a premium concierge storage company. This is a real prototype for exec, product, and engineering review — built to production standard, not as a demo. It should feel like Airbnb's onboarding meets a premium financial advisor. Warm, confident, intelligent. Every screen feels designed, not generated.
+>
+> ---
+>
+> ## Tech Stack
+>
+> - **Next.js 14** with App Router
+> - **React** with hooks (useState, useContext, useEffect, useRef)
+> - **Tailwind CSS** for all styling — no inline styles, no CSS modules
+> - **Framer Motion** for all animations and transitions
+> - TypeScript preferred but not required
+> - No backend, no database — all state in React context, persisted through the flow
+> - Deployable to Vercel from the repo with zero config
+>
+> **Project structure:**
+> ```
+> /app
+>   /layout.tsx          — font imports, metadata, PhoneFrame wrapper
+>   /page.tsx            — renders FlowController
+> /components
+>   /flow
+>     FlowController.tsx — manages screen routing, state, history stack
+>     ProgressBar.tsx
+>     TopNav.tsx
+>   /screens
+>     Screen1Intent.tsx
+>     Screen2Situation.tsx
+>     Screen2BConfirmation.tsx
+>     Screen3Education.tsx  — loading screen variant
+>     Screen4Size.tsx       — dual-path: quick select + advisor quiz
+>     Screen5Pricing.tsx
+>     Screen6Tier.tsx
+>     Screen7Date.tsx
+>     Screen8Lead.tsx
+>     Screen9Addons.tsx
+>     Screen10Review.tsx
+>     ScreenFlexHandoff.tsx
+>     ScreenSuccess.tsx
+>   /ui
+>     Card.tsx
+>     Button.tsx
+>     Input.tsx
+>     Toggle.tsx
+>     Badge.tsx
+>     PillSelector.tsx
+>     CalendarPicker.tsx
+>     ItemSearch.tsx        — for the advisor quiz path
+> /lib
+>   state.ts              — FlowState type, default state, context
+>   pricing.ts            — pricing table, tier multipliers, plan logic
+>   availability.ts       — date availability simulation logic
+>   recommendations.ts    — situation → defaults, item → size adjustment
+> ```
+>
+> ---
+>
+> ## Design System
+>
+> **Colors — use Tailwind custom config:**
+> ```js
+> // tailwind.config.js
+> colors: {
+>   teal: {
+>     DEFAULT: '#1B7A6E',
+>     dark:    '#145F56',
+>     light:   '#E8F4F2',
+>     mid:     '#2A9B8C',
+>   },
+>   charcoal: '#1C1C1E',
+>   mist:     '#F8F7F4',
+>   warm:     '#EDECEA',
+>   border:   '#E5E7EB',
+>   grey: {
+>     DEFAULT: '#6B7280',
+>     light:   '#F3F4F6',
+>   },
+>   flex: {
+>     DEFAULT: '#F5A623',
+>     light:   '#FFFBF0',
+>   }
+> }
+> ```
+>
+> **Typography:**
+> Import from Google Fonts in layout.tsx:
+> - **DM Serif Display** — all h1 headlines, 28–32px, charcoal, line-height 1.15
+> - **DM Sans** — all body, UI, labels, 300/400/500/600 weights
+> - Never use Inter, Roboto, System UI, or Arial
+>
+> Use `<em>` inside h1 for italic teal accent words. Style: `font-style: italic; color: teal`.
+>
+> **Spacing:** Generous. Minimum 24px horizontal padding inside the phone frame. Minimum 28px between major sections. Never feel cramped.
+>
+> **Cards:**
+> ```
+> Default:   white bg, border border-border, rounded-2xl, shadow-sm
+> Hover:     border-teal-mid bg-teal-light transition-all duration-150
+> Selected:  border-teal bg-teal-light — teal checkmark badge absolute top-3 right-3
+> Flex card: border-flex bg-flex-light — flex-colored checkmark
+> ```
+>
+> **Buttons:**
+> ```
+> Primary:   w-full bg-teal text-white font-semibold rounded-2xl py-4
+>            hover:bg-teal-dark hover:-translate-y-px hover:shadow-teal
+>            disabled:bg-border disabled:text-grey cursor-not-allowed
+> Secondary: w-full border border-teal text-teal rounded-2xl py-4
+>            hover:bg-teal-light
+> ```
+>
+> **Phone frame:**
+> ```
+> max-w-[430px] mx-auto min-h-[780px]
+> bg-white rounded-[40px]
+> shadow-[0_30px_80px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.06)]
+> overflow-hidden flex flex-col
+> ```
+> Warm `#EDECEA` full-page background behind frame.
+>
+> **No emojis anywhere in the UI.** Use simple SVG icons or Lucide React icons instead. Clean, minimal, professional.
+>
+> ---
+>
+> ## Animations — Framer Motion
+>
+> **Screen transitions:**
+> ```tsx
+> // Every screen wraps in this motion.div
+> <motion.div
+>   initial={{ opacity: 0, y: 8 }}
+>   animate={{ opacity: 1, y: 0 }}
+>   exit={{ opacity: 0, y: -4 }}
+>   transition={{ duration: 0.22, ease: 'easeOut' }}
+> >
+> ```
+> Use `<AnimatePresence mode="wait">` in FlowController to coordinate enter/exit.
+>
+> **Education loading screens** (Screen 3):
+> This screen acts as a loading interstitial — it plays automatically and advances without user input.
+> - On mount: stagger-animate each education step card in (delay 0ms, 300ms, 600ms)
+> - Each card: `initial={{ opacity: 0, y: 16 }}` → `animate={{ opacity: 1, y: 0 }}`
+> - After all three cards have appeared (900ms total), show the CTA button with a fade-in
+> - The screen does NOT auto-advance — user taps "Got it" to continue. But the animation makes it feel like something is happening (like a loading screen with content) rather than a static information screen.
+> - Optional: show a subtle teal progress indicator (thin line) that fills from 0→100% over 900ms to reinforce the "loading" feel before the CTA appears
+>
+> **Card selection:**
+> - Selected state animates in with a spring: `scale 1 → 1.01 → 1` (subtle pulse)
+> - Checkmark badge: `scale 0 → 1.2 → 1` spring animation on appear
+>
+> **Inline expansions** (Screen 1 sub-questions, add-on toggles):
+> - `<AnimatePresence>` + `motion.div` with `height: 0 → auto` using layout animation
+> - Smooth, no layout jump
+>
+> **Toggle switches:**
+> - Thumb position animates with `layout` prop on the inner circle
+> - Color transition on the track: 200ms
+>
+> **Date availability states:**
+> - Fade transition between available/unavailable/limited states (150ms)
+> - Alternative date cards stagger in: 0ms, 80ms, 160ms delays
+>
+> **Success screen:**
+> - Full teal background fades in (300ms)
+> - Checkmark circle: draws in with SVG stroke animation (600ms)
+> - Text lines stagger up: 400ms, 600ms, 800ms delays
+>
+> ---
+>
+> ## Global State
+>
+> ```ts
+> // lib/state.ts
+> export type Branch = 'A' | 'B1' | 'B2' | 'B3' | 'B4'
+> export type Situation = 'moving' | 'relocating' | 'declutter' | 'lifechange' | 'renovation' | 'other'
+> export type Tier = 'whiteglove' | 'prepacked' | 'youload'
+> export type Plan = 'committed' | 'longhaul' | 'flexible'
+> export type ArrivalType = 'flexible' | 'scheduled'
+> export type SizeMethod = 'quick' | 'advisor' // which path they took on Screen 4
+>
+> export interface FlowState {
+>   // Screen 1
+>   zip: string
+>   intent: 'storage' | 'moving' | null
+>   needsStorage: boolean | null
+>   moveDistance: 'local' | 'longdistance' | null
+>
+>   // Routing
+>   branch: Branch | null
+>
+>   // Situation (Screen 2)
+>   situation: Situation | null
+>
+>   // Size (Screen 4)
+>   sizeMethod: SizeMethod | null
+>   selectedBedrooms: string | null       // quick path
+>   selectedItems: string[]               // advisor path
+>   sizeIdx: number                       // 1–8, derived
+>   sizeName: string
+>
+>   // Plan (Screens 5–6)
+>   plan: Plan
+>   tier: Tier
+>
+>   // Date (Screen 7)
+>   pickupDate: Date | null
+>   arrivalType: ArrivalType
+>   arrivalWindow: string
+>
+>   // Lead (Screen 8)
+>   firstName: string
+>   lastName: string
+>   email: string
+>   phone: string
+>   pickupAddress: string
+>   deliveryAddress: string
+>
+>   // Add-ons (Screen 9)
+>   addons: {
+>     packing: null | '1-10' | '15-25' | 'unlimited'
+>     disposal: boolean
+>     protection: null | 'standard' | 'premium'
+>   }
+>
+>   // Flex-specific
+>   bedrooms: string | null
+>   moveDate: Date | null
+> }
+>
+> export const defaultState: FlowState = {
+>   zip: '',
+>   intent: null,
+>   needsStorage: null,
+>   moveDistance: null,
+>   branch: null,
+>   situation: null,
+>   sizeMethod: null,
+>   selectedBedrooms: null,
+>   selectedItems: [],
+>   sizeIdx: 1,
+>   sizeName: '5x5 Small Closet',
+>   plan: 'committed',
+>   tier: 'whiteglove',
+>   pickupDate: null,
+>   arrivalType: 'flexible',
+>   arrivalWindow: '',
+>   firstName: '',
+>   lastName: '',
+>   email: '',
+>   phone: '',
+>   pickupAddress: '',
+>   deliveryAddress: '',
+>   addons: { packing: null, disposal: false, protection: null },
+>   bedrooms: null,
+>   moveDate: null,
+> }
+> ```
+>
+> Wrap the entire app in a `FlowContext` provider. All screens read/write via `useFlowState()` hook.
+>
+> ---
+>
+> ## Pricing
+>
+> ```ts
+> // lib/pricing.ts
+> export const pricing = [
+>   { key:'5x5',   label:'5x5',   friendly:'Small Closet',      m2m:132,  four:80,   eight:71  },
+>   { key:'5x10',  label:'5x10',  friendly:'Walk-in Closet',    m2m:146,  four:133,  eight:122 },
+>   { key:'10x10', label:'10x10', friendly:'Garage',             m2m:348,  four:212,  eight:194 },
+>   { key:'10x15', label:'10x15', friendly:'Studio Apartment',   m2m:509,  four:310,  eight:284 },
+>   { key:'10x20', label:'10x20', friendly:'One Bedroom',        m2m:687,  four:419,  eight:382 },
+>   { key:'10x25', label:'10x25', friendly:'Two Bedroom',        m2m:890,  four:543,  eight:497 },
+>   { key:'10x30', label:'10x30', friendly:'Three Bedroom',      m2m:1016, four:620,  eight:567 },
+>   { key:'10x40', label:'10x40', friendly:'Four Bedroom',       m2m:1203, four:734,  eight:672 },
+> ]
+>
+> export const tierMultipliers = {
+>   whiteglove: 1.0,
+>   prepacked:  0.9,
+>   youload:    0.8,
+> }
+>
+> export function getPrice(sizeIdx: number, plan: Plan, tier: Tier): number {
+>   const p = pricing[sizeIdx]
+>   const mult = tierMultipliers[tier]
+>   if (plan === 'committed') return Math.round(p.four * mult)
+>   if (plan === 'longhaul')  return Math.round(p.eight * mult)
+>   return Math.round(p.m2m * mult)
+> }
+> ```
+>
+> ---
+>
+> ## Recommendations
+>
+> ```ts
+> // lib/recommendations.ts
+>
+> export const situationDefaults = {
+>   moving:     { sizeIdx: 4, plan: 'committed', tier: 'whiteglove' },
+>   relocating: { sizeIdx: 5, plan: 'longhaul',  tier: 'whiteglove' },
+>   declutter:  { sizeIdx: 1, plan: 'longhaul',  tier: 'prepacked'  },
+>   lifechange: { sizeIdx: 2, plan: 'committed', tier: 'whiteglove' },
+>   renovation: { sizeIdx: 3, plan: 'flexible',  tier: 'whiteglove' },
+>   other:      { sizeIdx: 0, plan: 'committed', tier: 'whiteglove' },
+> }
+>
+> // Bedroom count → size index (quick path)
+> export const bedroomToSize = {
+>   'Studio':    0,   // 5x5
+>   '1 Bedroom': 4,   // 10x20
+>   '2 Bedroom': 5,   // 10x25
+>   '3 Bedroom': 6,   // 10x30
+>   '4+ Bedroom':7,   // 10x40
+> }
+>
+> // Item adjustments on top of situation baseline (advisor path)
+> export function adjustSizeForItems(baseline: number, items: string[]): number {
+>   let adj = 0
+>   if (items.includes('sofa'))       adj += 1
+>   if (items.includes('bed'))        adj += 1
+>   if (items.includes('mattress'))   adj += 1
+>   if (items.includes('appliance'))  adj += 1
+>   if (items.includes('desk'))       adj += 0
+>   if (items.includes('chair'))      adj += 0
+>   if (items.includes('table'))      adj += 1
+>   if (items.includes('boxes') && items.length < 3) adj -= 1
+>   return Math.max(0, Math.min(7, baseline + adj))
+> }
+> ```
+>
+> ---
+>
+> ## Availability Simulation
+>
+> ```ts
+> // lib/availability.ts
+> export type Availability = 'past' | 'unavailable' | 'limited' | 'available'
+>
+> export function getAvailability(date: Date): Availability {
+>   const today = new Date()
+>   const diff = Math.floor((date.getTime() - today.getTime()) / 86400000)
+>   if (diff < 3) return 'past'
+>   const day = date.getDay()
+>   if (day === 2 || day === 6) return 'unavailable'  // Tue, Sat
+>   if (day === 5) return 'limited'                    // Fri
+>   return 'available'
+> }
+>
+> export function getNextAvailable(from: Date, count = 3): Date[] {
+>   const results: Date[] = []
+>   const cursor = new Date(from)
+>   cursor.setDate(cursor.getDate() + 1)
+>   while (results.length < count) {
+>     if (getAvailability(cursor) === 'available' || getAvailability(cursor) === 'limited') {
+>       results.push(new Date(cursor))
+>     }
+>     cursor.setDate(cursor.getDate() + 1)
+>   }
+>   return results
+> }
+> ```
+>
+> ---
+>
+> ## All Screens
+>
+> ---
+>
+> ### SCREEN 1 — Intent + Zip
+>
+> Step: "Let's get started"
+> h1: `Storage that comes <em>to you.</em>`
+>
+> - Zip input: large, centered, letter-spacing, 5-char max, validates on keystroke
+> - Two intent cards appear (fade in) after valid zip entered:
+>   - **Returning to same address** — "Store my items and bring them back when I'm ready" → Branch A
+>   - **Moving to a new address** — "I'm relocating and may need storage along the way"
+> - Selecting "Moving to a new address" triggers an inline AnimatePresence expansion:
+>   ```
+>   Do you need storage along the way?
+>   [Yes — store and deliver later]  [No — move directly A to B]
+>
+>   [If No:] Is this a local or long-distance move?
+>   [Local — same state]  [Long distance — different state]
+>   ```
+> - CTA: "Build my plan" — disabled until all required selections made
+> - Trust row: SVG lock icon "Secure" | SVG star "4.8 rating" | SVG check "Free to reserve"
+>
+> ---
+>
+> ### SCREEN 2 — Situation (Branch A only)
+>
+> h1: `What's the <em>situation?</em>`
+> Subtitle: "We'll personalize your plan based on what's going on."
+>
+> Six cards, 2-column grid, no emojis — use a small Lucide icon instead:
+> - Home icon — **Moving to a new place** — "Need storage between homes"
+> - Briefcase icon — **Relocating for work** — "Storing while I settle somewhere new"
+> - Layers icon — **Decluttering** — "Freeing up space at home"
+> - Heart icon — **Life change** — "New baby, divorce, renovation, new roommate"
+> - Tool icon — **Renovation** — "Temporary storage during construction"
+> - MoreHorizontal icon — **Something else**
+>
+> On selection: silently apply `situationDefaults[situation]` to state. No visible indication.
+> CTA: "Continue"
+>
+> ---
+>
+> ### SCREEN 2B — Situation Confirmation (Branches B1, B3)
+>
+> h1: `We'll handle <em>the whole journey.</em>`
+>
+> Single large confirmation card:
+> - B1: "We'll pick up from your current place, store everything securely, and deliver to your new address when you're ready."
+> - B3: "We'll pick up here, store securely, and our partner Flex will handle long-distance delivery to your new home."
+>
+> Primary CTA: "That's exactly right"
+> Secondary link: "Change my plan" → back to Screen 1
+> Silently set `situation = 'moving'`, apply moving defaults.
+>
+> ---
+>
+> ### SCREEN 3 — Education Interstitial (Loading Screen)
+>
+> This screen functions as a loading screen with content. It makes the user feel like something intelligent is happening in the background while they absorb the value proposition.
+>
+> **Layout:**
+> - Thin teal progress bar at top (separate from the flow progress bar) — fills 0→100% over 1200ms using a CSS animation on mount
+> - Headline appears first (fade in, 0ms delay): situation-aware h1
+> - Three education cards stagger in (Framer Motion, 300ms / 600ms / 900ms delays)
+> - CTA button fades in after all three cards appear (1000ms delay)
+>
+> **Do not auto-advance.** The animations play, then the CTA appears. User taps to continue. This respects user agency while making the screen feel dynamic.
+>
+> **h1 variants by situation:**
+> - moving/B1: `Storage without <em>the hassle.</em>`
+> - relocating/B3: `Covered from here <em>to there.</em>`
+> - declutter: `This is not a <em>storage unit.</em>`
+> - renovation: `Your stuff, safe <em>while you build.</em>`
+> - lifechange/other: `This is not a <em>storage unit.</em>`
+>
+> **Three education cards** (icon box + title + body, mist bg):
+>
+> Card 1 — always the same:
+> Truck icon | **We come to you**
+> "Our team arrives, wraps your items, and loads everything. You don't lift a finger — or rent a truck."
+>
+> Card 2 — always the same:
+> Smartphone icon | **Your digital inventory**
+> "Every item is photographed and catalogued. See exactly what's in storage from your phone, anytime."
+>
+> Card 3 — varies by situation:
+> - Storage: Zap icon | **On-demand returns** — "Need something back? Schedule in the app. We deliver to your door."
+> - Moving/B1: Home icon | **Delivered to your new place** — "When you're ready, we deliver to your new address. No truck, no lifting."
+> - Renovation: RotateCcw icon | **Back when you're ready** — "The moment construction ends, we return everything. Same team, same care."
+> - Relocating/B3: Globe icon | **End-to-end coverage** — "Clutter stores here. When you're settled, our partner Flex delivers long-distance."
+>
+> Teal callout box (fades in with Card 3):
+> - Storage: "Unlike self-storage, you never rent a truck, carry boxes, or visit a facility."
+> - Moving: "One booking covers pickup, storage, and final delivery — wherever that is."
+>
+> CTA: "Got it — show me my plan"
+>
+> ---
+>
+> ### SCREEN 4 — Storage Size (Dual-Path)
+>
+> This is the most important screen in the flow. It must serve two very different user types simultaneously without making either feel like they're on the wrong path.
+>
+> **Layout:**
+>
+> h1: `How much space <em>do you need?</em>`
+> Subtitle: "We'll lower your rate if you end up needing less space."
+>
+> The screen is divided into two visually distinct but equal-weight sections, separated by a subtle "or" divider:
+>
+> ---
+>
+> **LEFT/TOP SECTION — Quick Select:**
+> Label (small caps): "I know what I need"
+>
+> Five bedroom count cards in a single vertical list, compact:
+> - Studio
+> - 1 Bedroom
+> - 2 Bedroom
+> - 3 Bedroom
+> - 4+ Bedroom
+>
+> Each card: bedroom label (bold) + size dimensions in grey (e.g. "10x20") — one tap selects, sets `state.sizeIdx` via `bedroomToSize`, advances to Screen 5.
+>
+> ---
+>
+> **"or" divider** — horizontal rule with "or" centered in white, grey text
+>
+> ---
+>
+> **BOTTOM SECTION — Advisor Path:**
+> A single prominent card with a slightly different visual treatment (mist background, teal left border accent):
+>
+> ```
+> [Search icon]  Tell us what you're storing
+>
+> Answer a few quick questions and we'll
+> recommend the perfect size.
+>
+> Users who do this save an average of
+> $23/mo by getting the right size.
+> ```
+>
+> Tapping this card expands (AnimatePresence, smooth height animation) into the **Item Advisor inline quiz:**
+>
+> ```
+> [Search input — "Search items (sofa, mattress, desk...)"]
+>
+> Popular items:
+> [Bed]  [Mattress]  [Sofa]  [Desk]  [Chair]  [Table]
+> [Appliance]  [Boxes]
+>
+> [Selected items appear as teal removable chips above the search]
+>
+> [As items are added, a live size recommendation updates:]
+> "Based on what you're storing: 10x20 — One Bedroom"
+> [Progress bar showing fullness: ████░░ 60% full]
+>
+> [Use this size →]
+> ```
+>
+> The search filters the popular item chips in real time. Each item tap adds it to `state.selectedItems` and recalculates `state.sizeIdx` via `adjustSizeForItems`. The live recommendation and fullness indicator update instantly.
+>
+> Tapping "Use this size" sets the size and advances to Screen 5.
+>
+> **Important UX note:** The advisor section should feel like an invitation, not a form. The conversion insight (users who use this save $23/mo) justifies its presence without being pushy. Users who want quick select can tap a bedroom card and be through in one tap. Users who want guidance get a genuinely useful tool.
+>
+> ---
+>
+> ### SCREEN 5 — Size Confirmation
+>
+> h1: `Here's what we <em>recommend.</em>`
+> Subtitle: "Based on what you're storing. Adjust if needed."
+>
+> Show THREE size cards only:
+> - Size below recommendation — "Tight fit"
+> - **Recommended** — large, teal "Recommended for you" badge, teal border, prominent
+> - Size above recommendation — "Extra room"
+>
+> Recommended card shows:
+> - Dimensions (DM Serif, large)
+> - Friendly label
+> - "From $[four price]/mo" in teal
+> - One-line description of what fits
+>
+> "See all sizes" link — expands full size grid below via AnimatePresence
+>
+> Callout: "We'll automatically lower your rate if you end up needing less space."
+>
+> CTA: "This looks right"
+>
+> ---
+>
+> ### SCREEN 6 — Personalized Pricing Reveal
+>
+> h1: `Your personalized <em>plan.</em>`
+>
+> Recommendation header (teal-light bg, rounded-2xl, above cards):
+> "Based on your situation, we've pre-selected the plan that makes the most sense for you."
+>
+> Three plan cards. Pre-select based on `state.plan` from situation defaults.
+>
+> **Committed Plan (4+ months)**
+> - "4-month minimum, then month-to-month"
+> - Price: large DM Serif Display, `$[four × mult]`/mo
+> - Line items: Storage $X/mo | Initial pickup: Included | Final delivery: Included | Total: $X/mo
+> - Teal savings pill: "Save $[m2m - four]/mo vs. flexible"
+> - "Most Popular" badge if pre-selected
+>
+> **Long Haul Plan (8+ months)**
+> - "8-month minimum — best rate, most included"
+> - Price: `$[eight × mult]`/mo
+> - Line items: Storage | Pickup: Included | Delivery: Included | 4 extra appointments: Included | Total
+> - Savings pill
+> - "Best Value" badge if pre-selected
+>
+> **Flexible Plan (month-to-month)**
+> - "No commitment — cancel anytime"
+> - Price: `$[m2m × mult]`/mo
+> - Line items with $149 pickup and $149 delivery shown explicitly as separate line items
+> - Grey note: "This is a premium pickup-and-store service — not a storage unit. The pickup and delivery are real services with real costs."
+>
+> Savings callout below (if committed or longhaul selected):
+> "You're saving $[X]/mo by choosing this plan."
+>
+> CTA: "This plan works for me"
+>
+> ---
+>
+> ### SCREEN 7 — Service Tier
+>
+> h1: `How do you want us <em>to pick up?</em>`
+>
+> Pre-selection label above cards: "Recommended based on what you're storing"
+>
+> Three cards — no emojis, use Lucide icons:
+>
+> **White Glove** (Star icon, teal "Most Popular" badge)
+> "Our team does everything — wrap, pad, load, and store."
+> Price: `$[four × 1.0]`/mo
+> Three feature lines with teal check icons (no emojis)
+>
+> **Pre-Packed** (Package icon)
+> "You've boxed everything. We load and store it."
+> Price: `$[four × 0.9]`/mo — "Save ~10%" grey badge
+>
+> **You Load, We Store** (yellow border, Flex badge)
+> "A Flex trailer drops at your door. You load, Flex delivers."
+> Price: `$[four × 0.8]`/mo with strikethrough of White Glove price
+> Feature lines with yellow check icons
+> Footer: small flex wordmark (yellow square + "flex" in DM Sans 300)
+>
+> You Load restriction note: if Flexible plan selected, show gentle inline prompt to switch to Committed.
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ### SCREEN 8 — Date + Availability
+>
+> h1: `When should we <em>pick up?</em>`
+> Subtitle: "Free cancellation up to 48 hours before your appointment."
+>
+> Callout: "Availability fills fast. Secure your slot now — you can always reschedule in your account portal."
+>
+> **Calendar component (CalendarPicker.tsx):**
+> - 7-column grid, current month, month navigation arrows
+> - Date states styled via Tailwind:
+>   - Past/too-soon: `text-grey-light cursor-not-allowed`
+>   - Unavailable (Tue, Sat): `text-grey-light line-through cursor-not-allowed`
+>   - Available: `text-charcoal hover:bg-teal-light hover:text-teal cursor-pointer rounded-full`
+>   - Limited (Fri): `text-charcoal cursor-pointer` + small dot indicator below date number
+>   - Selected: `bg-teal text-white rounded-full`
+>
+> **Availability state panel** (AnimatePresence, fades in below calendar on date tap):
+>
+> Available state:
+> ```
+> [Check icon] [Day, Month Date] is available
+>
+> Select an arrival window:
+> [Flexible — Free]     [Scheduled — $29]
+> 3-hour window day-of  Choose your time
+>
+> [If Scheduled:]
+> [7-10AM]  [9AM-12PM]  [11AM-3PM]
+> ```
+>
+> Unavailable state:
+> ```
+> [X icon] That date isn't available for your plan
+>
+> Closest available dates:
+> [Date card 1]  [Date card 2]  [Date card 3]
+> — stagger animate in —
+>
+> Or pick a different date above
+> ```
+>
+> Limited state:
+> ```
+> [Lightning icon] Limited availability — 2 slots remaining
+>
+> [Same arrival window selector]
+> ```
+>
+> CTA: "Lock in this date" — enabled only after date + window selected
+>
+> ---
+>
+> ### SCREEN 9 — Lead Capture
+>
+> h1: `Almost there — <em>save your quote.</em>`
+> Subtitle: "We'll email a full breakdown and hold your spot at no charge."
+>
+> Fields: First name | Last name | Email | Phone | Pickup address
+> Branch B1/B3 only: Delivery address field fades in below pickup address
+>
+> Branch B3 callout after delivery address: "Long-distance delivery will be handled by our partner Flex. A specialist will call within 24 hours."
+>
+> Trust row (SVG icons, no emojis): Lock "Secure" | Star "4.8 on Google" | Check "Free cancellation"
+>
+> Note: "No credit card required. Your reservation is always free."
+>
+> CTA: "Save My Quote"
+>
+> ---
+>
+> ### SCREEN 10 — Add-Ons
+>
+> h1: `A few last <em>things.</em>`
+> Subtitle: "Optional — add them now or anytime after booking."
+>
+> **Situation-aware featured add-on** (full-width teal-light card, top of screen):
+> - renovation: Trash icon — Disposal — "Clearing out? We'll haul away what you don't want."
+> - moving/B1: Package icon — Packing — "Let us pack everything so you can focus on the move."
+> - declutter/relocating: Shield icon — Protection — "Storing long-term? Make sure your items are covered."
+> - other/lifechange: no featured card
+>
+> **Three toggle sections** (Toggle.tsx — custom animated switch):
+>
+> Packing service:
+> Toggle ON → AnimatePresence expands sub-options:
+> - 1–10 boxes — +$15/mo
+> - 15–25 boxes — +$25/mo (pre-selected)
+> - Unlimited — +$35/mo
+>
+> Disposal service:
+> Toggle ON → "Tell us what to haul away after booking. Starting at $10/item."
+>
+> Protection plan:
+> Toggle ON → sub-options:
+> - Standard — +$15/mo — up to $1,000
+> - Premium — +$50/mo — up to $2,500 (pre-selected)
+>
+> CTA: "Continue"
+>
+> ---
+>
+> ### SCREEN 11 — Review + Book
+>
+> h1: `Review your <em>booking.</em>`
+> Subtitle: "Everything looks good? Your reservation is always free."
+>
+> Four summary cards (mist bg, rounded-2xl, uppercase label):
+>
+> **YOUR PLAN** — Size | Tier | Plan | Situation
+> **PICKUP DETAILS** — Date (formatted "Monday, October 2nd") | Window | Address | [B1/B3: Delivery address]
+> **MONTHLY BREAKDOWN** — All line items built from state, dynamically calculated. Total in teal bold.
+> **WHAT HAPPENS NEXT** — Three timeline steps with real dates:
+> - Today: "Spot reserved. Check email for confirmation."
+> - [Date - 2 days]: "We'll call to confirm your inventory."
+> - [Pickup date]: "Your Clutter team arrives."
+>
+> Due today block (bg-teal, rounded-2xl):
+> - "Due today" small white label
+> - "$0" DM Serif Display 52px white
+> - "Charges begin after your first pickup" small white
+>
+> Savings callout (if committed/longhaul): "You're saving $[X]/mo by choosing the [plan name]."
+>
+> Promo code: collapsed, "Have a promo code?" → AnimatePresence expand
+>
+> CTA: "Complete Reservation"
+>
+> Legal fine print below.
+>
+> ---
+>
+> ### SUCCESS SCREEN
+>
+> Full teal background (bg-teal, min-h-screen, flex center).
+>
+> Animated SVG checkmark circle:
+> - Circle draws in with stroke-dashoffset animation (600ms, ease-out)
+> - Check path draws in after circle (300ms delay, 400ms duration)
+>
+> Content (stagger animate up):
+> - "You're all set, [firstName]." — DM Serif Display, white, 32px
+> - "Check your email for confirmation." — DM Sans, white/80, 16px
+> - "We'll see you on [formatted pickup date]." — DM Sans, white/80, 16px
+>
+> "clutter" wordmark (DM Serif Display, white, centered, bottom of screen)
+>
+> ---
+>
+> ### FLEX FAST LANES
+>
+> **Branch B2 — Local Move Only (4 screens):**
+>
+> Screen B2-1: h1 `Looks like a <em>local move.</em>`
+> Two cards: Truck icon "Clutter moves you" | Square icon "Meet Flex — our move partner" (yellow border)
+>
+> Screen B2-2 (if Flex): Flex handoff screen
+> - Flex logo: yellow square + "flex" DM Sans 300 weight, in bordered card centered
+> - h1: `Moving locally? <em>We've got you.</em>`
+> - "Powered by Clutter's trusted network" grey pill badge
+> - Four feature rows with teal check circles (no emojis): GPS-tracked trailers | Professional drivers | Climate controlled | Solar-powered ventilation
+> - Mini form: Move date | Pickup address | Drop-off address | Bedroom count pills
+> - CTA: "Continue to Flex"
+>
+> Screen B2-3: Lead capture (name, email, phone)
+> Screen B2-4: Confirmation — "Flex will be in touch within 24 hours."
+>
+> **Branch B4 — Long Distance Move Only (3 screens):**
+>
+> Screen B4-1: Immediate Flex handoff (same design, subtitle "Long-distance move? Flex has you end to end.")
+> Both addresses required in mini form.
+>
+> Screen B4-2: Lead capture
+>
+> Screen B4-3: Teal success screen, Flex logo, "A Flex specialist will call you at [phone] within 24 hours."
+>
+> ---
+>
+> ## Navigation Architecture
+>
+> ```tsx
+> // FlowController.tsx
+> const [screenStack, setScreenStack] = useState<string[]>(['screen-1'])
+>
+> const goTo = (screenId: string) => {
+>   setScreenStack(prev => [...prev, screenId])
+>   window.scrollTo(0, 0)  // scroll phone frame to top
+> }
+>
+> const goBack = () => {
+>   if (screenStack.length <= 1) return
+>   setScreenStack(prev => prev.slice(0, -1))
+> }
+>
+> const currentScreen = screenStack[screenStack.length - 1]
+>
+> // Progress = screenStack.length / totalScreensForBranch
+> ```
+>
+> Use `<AnimatePresence mode="wait">` keyed on `currentScreen` to coordinate screen transitions.
+>
+> ---
+>
+> ## Key Product Decisions Baked Into This Build
+>
+> 1. **Education screens are loading screens.** Staggered animations make them feel purposeful and dynamic — not walls of text. The flow never feels like it's waiting.
+> 2. **No emojis anywhere.** Lucide React icons only. This is a modern tech brand.
+> 3. **The size screen serves two users.** Quick bedroom select for confident users (one tap, done). Advisor quiz for uncertain users (item search, live recommendation, size indicator). Both paths are first-class. The advisor path is prominent because users who take it convert better.
+> 4. **Situation infers the plan.** The customer never answers "how long do you need storage?" — their situation tells us. This removes the hardest question in the flow.
+> 5. **Flexible plan pricing is honest.** $149 pickup and $149 delivery are shown as explicit line items. This reframes the comparison vs. self-storage entirely.
+> 6. **Date is last.** Availability is confirmed after the customer is invested and their full plan is built. The date screen is the final practical step, not an early gate.
+> 7. **Flex fast lanes are genuinely fast.** B2 and B4 are 3–4 screens. Get the lead, make the handoff, get out.
+> 8. **The success screen is a moment.** Full teal takeover, animated SVG checkmark, personalized with first name and pickup date. Emotional payoff for completing the flow.
